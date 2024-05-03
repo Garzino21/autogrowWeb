@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title> MY GARDEN </title>
+  <meta charset="UTF-8">
+  <link rel="icon" href="favicon.ico" type="image/png" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="./libreria.js"></script>
+  <script src="./index.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"
+    integrity="sha512-hUhvpC5f8cgc04OZb55j0KNGh4eh7dLxd/dPSJ5VyzqDWxsayYbojWyl5Tkcgrmb/RVKCRJI1jNlRbVP4WWC4w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-green navb">
+    <a class="navbar-brand" id="logo" style="color: rgb(109, 137, 102);; font-weight: bold;">AutoGrow</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active home">
+          <a class="nav-link">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link prog">Chi siamo?</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link monitora">Monitora</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ml-auto">
+        <li id="liMeteo">
+          <img src="" alt="METEO" id="meteo">
+          <span class="nav-link">Meteo</span>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--<video muted autoplay loop class="videofullscreen">
+    <source src="img/forest2.mp4" type="video/mp4">
+  </video>-->
+  <div class="container">
+    <div id="intestazione">
+      <h1 id="title">AUTOGROW</h1>
+      <h2 id="subTitle">Your personal garden assistant</h2>
+    </div>
+    <div id="paginaIniziale" class="application" style="background-color: transparent; height: fit-content;">
+      <div class="button monitora">MONITORA</div>
+      <div class="button prog">PROGETTO</div>
+    </div>
+
+    <div id="progetto" class="application" style="background-color: transparent; height: fit-content;">
+      <h2 style="color: rgb(144, 210, 126); font-weight: bold;">IL PROGETTO</h2>
+      <img src="img/background.png" alt="non trovato" class="textImage">
+      <h2 style="color: rgb(144, 210, 126); font-weight: bold;">CHI SIAMO?</h2>
+      <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto Grow</span> è un progetto nato con l'obiettivo di
+      rendere l'arte della semina e della cura delle piante
+      un'attività semplice e alla portata di tutti. Con <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto
+        Grow</span>, la semina e la cura delle piante non saranno più un'attività noiosa per il semplice fatto che
+      il processo di irrigazione e cura del terreno è totalmente automatizzato. Non vedrai l'ora di vedere crescere le
+      tue piante!!
+      <br>
+      <br>
+      <h2 style="color: rgb(144, 210, 126); font-weight: bold;">COME FUNZIONA?</h2>
+      <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto Grow</span> cerca di ottimizzare l'utilizzo delle
+      risorse indispensabili per la fotosintesi quali acqua, luce e di rendere il processo di irrigazione il più
+      efficiente possibile.
+      Il sistema è composto da una serie di sensori che monitorano costantemente il terreno. In base a queste
+      informazioni, il sistema decide se e quanto irrigare.
+      Dal sito web, è possibile monitorare lo stato del terreno e delle piante, e modificare le impostazioni di
+      irrigazione.
+      Attraverso dei semplici comandi, è possibile attivare o disattivare l'irrigazione automatica, passando così alla
+      versione manuale.
+      <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto Grow</span> è stata progettata ad hoc per essere
+      il più semplice possibile da utilizzare, in modo che tutti possano godere dei benefici di avere un giardino in
+      casa.
+      Il suo design è stato pensato per essere il più compatto possibile, in modo da poter essere posizionato in
+      qualsiasi ambiente.
+      <br>
+      <br>
+      <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto Grow</span> nasce dall'esigenza di riuscire a
+      anticipare la semina delle piante aromatiche, quali il basilico, il prezzemolo, la menta, il timo e la salvia, in
+      modo da poterle avere a disposizione prima del periodo
+      primaverile. Inoltre, il sistema è stato progettato per essere il più versatile possibile, in modo da poter essere
+      utilizzato per qualsiasi tipo di pianta.
+      <br>
+      <br>
+      <h2 style="color: rgb(144, 210, 126); font-weight: bold;">USI FUTURI...</h2>
+      In un futuro penso di espandere l'utilizzo di <span style="color: rgb(144, 210, 126);font-weight: bold;">Auto
+        Grow</span> alla mia serra personale, in modo da poter
+      monitorare e controllare la crescita delle piante in modo ancora più efficiente, ma sopratutto anche da lontano.
+      Doterò inoltre il mio orto di un tablet gestionale per poter tenere tutto sotto controllo anche da vicino e in
+      modo piu' pratico.
+    </div>
+
+    <div id="paginaDati" class="application">
+
+      <div id="rilevamenti">
+        <div title="temperatura"></div>
+        <div title="umidità dell'aria">Haria</div>
+        <div title="umidità del terreno">Hterra</div>
+        <div title="ora attuale">ORA</div>
+      </div>
+
+
+      <div id="parametri">
+        <div class="paramTitolo" style="margin-top: 2%; float: left;">GRAFICO ILLUSTRATIVO <div class="domanda"><img
+              src="img/domanda.png" name="grafico"></div>
+        </div>
+
+        <select name="selectStorico" id="selectStorico"></select>
+        <select name="selectVisualData" id="selectVisualData">
+          <option value="10">10 min</option>
+          <option value="30">30 min</option>
+          <option value="60">1 ora</option>
+        </select>
+
+        <div class="div" style="background-color: transparent;">
+          <div id="contenitoreCanvas">
+            <canvas id="myChart"></canvas>
+          </div>
+        </div>
+        <div class="paramTitolo">PROGRAMMA IRRIGAZIONE <div class="domanda"><img src="img/domanda.png"
+              name="irrigazione"></div>
+        </div>
+        <div class="div cont" id="impostazioni">
+          <!-- <img src="img/file.png" id="fileDiLog"> -->
+          <div id="btnModalita" class="button">AUTOMATICO</div>
+          <br class="togliBr">
+          <div id="btnStato" class="button irrig">ACCENDI</div>
+
+          <table id="tabAutomatico">
+            <thead>
+              <tr>
+                <td>QUANDO TERRENO</td>
+                <td>FINO A QUANDO</td>
+                <td>POTENZA</td>
+                <td>RITARDO DISATTIVAZIONE</td>
+                <td>ATTIVA</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cella 4</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+              </tr>
+              <tr>
+                <td>Cella 4</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+              </tr>
+              <tr>
+                <td>Cella 4</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+                <td>Cella 5</td>
+                <td>Cella 6</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+        <div class="paramTitolo">METEO SETTIMANALE <div class="domanda"><img src="img/domanda.png" name="meteo"></div>
+        </div>
+        <div class="div cont" id="meteoSettimana">
+          <table id="tabMeteo">
+            <thead id="thead">
+              <tr></tr>
+            </thead>
+            <tbody id="tbody">
+              <tr></tr>
+              <tr></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
