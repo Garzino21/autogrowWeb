@@ -493,3 +493,8 @@ $RECYCLE.BIN/
 
 #images
 autogrowWeb/static/img/
+
+autogrwoWeb/static/env.js
+
+autogrowWeb/.env
+

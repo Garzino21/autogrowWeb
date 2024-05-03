@@ -35,8 +35,6 @@ $(document).ready(function () {
     let _domanda = $(".domanda");
     let _selectVisualData = $("#selectVisualData");
 
-    _navBar.hide();
-
     const ctx = $("#myChart");
 
     //RIQUADRO ORARIO
@@ -58,8 +56,7 @@ $(document).ready(function () {
     }, 1000);
 
     //impostazioni di avvio
-    _paginaIniziale.show().css("margin-top", "flex");
-    _paginaDati.hide();
+    _paginaDati.show();
     _progetto.hide();
     _btnStato.hide();
 
@@ -115,7 +112,6 @@ $(document).ready(function () {
 
     //btnMonitora
     _monitora.on("click", function () {
-        _paginaIniziale.hide();
         _progetto.hide();
         _paginaDati.show();
         _body.css("overflow-y", "scroll");
@@ -129,29 +125,14 @@ $(document).ready(function () {
     //btnProgetto
     _prog.on("click", function () {
         _progetto.show();
-        _paginaIniziale.hide();
         _paginaDati.hide();
         _indietro.show();
         _body.css("overflow", "scroll");
-        _navBar.show();
         _prog.addClass("active");
         _monitora.removeClass("active");
         _home.removeClass("active");
         $("#liMeteo").children().eq(1).removeClass("active");
-    })
-
-    //ritorno alla home
-    _home.on("click", function () {
-        _paginaIniziale.show();
-        _paginaDati.hide();
-        _progetto.hide();
-        _body.css("overflow", "hidden");
-        _navBar.hide();
-        _home.addClass("active");
-        _prog.removeClass("active");
-        _monitora.removeClass("active");
-        $("#liMeteo").children().eq(1).removeClass("active");
-    })
+    });
 
     //modAutomatico e manuale
     _modalitaIrrigazione.on("click", function () {

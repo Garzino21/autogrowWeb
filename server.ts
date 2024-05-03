@@ -6,6 +6,9 @@ import _dotenv from "dotenv";
 import _cors from "cors";
 import _fileUpload from "express-fileupload";
 import _streamifier from "streamifier";
+import _bcrypt from "bcryptjs";
+import _jwt from "jsonwebtoken";
+
 
 // Lettura delle password e parametri fondamentali
 _dotenv.config({ "path": ".env" });
@@ -15,6 +18,10 @@ _dotenv.config({ "path": ".env" });
 import { MongoClient, ObjectId } from "mongodb";
 const DBNAME = process.env.DBNAME;
 const connectionString: string = process.env.connectionStringAtlas;
+const PRIVATE_KEY = _fs.readFileSync("./keys/privateKey.pem", "utf8");
+const CERTIFICATE = _fs.readFileSync("./keys/certificate.crt", "utf8");
+const ENCRYPTION_KEY = _fs.readFileSync("./keys/encryptionKey.txt", "utf8");
+const CREDENTIALS = { "key": PRIVATE_KEY, "cert": CERTIFICATE };
 const app = _express();
 
 // Creazione ed avvio del server
@@ -82,6 +89,85 @@ const corsOptions = {
     credentials: true
 };
 app.use("/", _cors(corsOptions));
+
+app.post("/api/login", async (req, res, next) => {
+    let username = req["body"].username;
+    let pwd = req["body"].password;
+    console.log(username, pwd)
+
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    const collection = client.db(DBNAME).collection("utenti");
+    let regex = new RegExp(`^${username}$`, "i");
+    let rq = collection.findOne({ "username": regex }, { "projection": { "username": 1, "password": 1 } });
+    rq.then((dbUser) => {
+        if (!dbUser) {
+            res.status(401).send("Username non valido");
+        }
+        else {
+            _bcrypt.compare(pwd, dbUser.password, (err, success) => {
+                if (err) {
+                    res.status(500).send(`Bcrypt compare error: ${err.message}`);
+                }
+                else {
+                    if (!success) {
+                        res.status(401).send("Password non valida");
+                    }
+                    else {
+                        let token = createToken(dbUser);
+                        console.log(token);
+                        res.setHeader("authorization", token);
+                        // Fa si che la header authorization venga restituita al client
+                        res.setHeader("access-control-expose-headers", "authorization");
+                        res.send({ "ris": "ok" });
+                    }
+                }
+            })
+        }
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err.message}`));
+    rq.finally(() => client.close());
+});
+
+// 11. Controllo del token
+app.use("/api/", (req: any, res: any, next: any) => {
+    console.log("Controllo tokenccccccccccc");
+    console.log(req.headers["authorization"]);
+    if (!req.headers["authorization"]) {
+        console.log("Token mancante");
+        res.status(403).send("Token mancante");
+    }
+    else {
+        let token = req.headers["authorization"];
+        _jwt.verify(token, ENCRYPTION_KEY, (err, payload) => {
+            if (err) {
+                res.status(403).send(`Token non valido: ${err}`);
+            }
+            else {
+                let newToken = createToken(payload);
+                console.log(newToken);
+                res.setHeader("authorization", newToken);
+                // Fa si che la header authorization venga restituita al client
+                res.setHeader("access-control-expose-headers", "authorization");
+                req["payload"] = payload;
+                next();
+            }
+        });
+    }
+});
+
+function createToken(data) {
+    let currentTimeSeconds = Math.floor(new Date().getTime() / 1000);
+    let payload = {
+        "_id": data._id,
+        "username": data.username,
+        // Se c'è iat mette iat altrimenti mette currentTimeSeconds
+        "iat": data.iat || currentTimeSeconds,
+        "exp": currentTimeSeconds + parseInt(process.env.TOKEN_EXPIRE_DURATION)
+    }
+    let token = _jwt.sign(payload, ENCRYPTION_KEY);
+    return token;
+}
 
 //********************************************************************************************//
 // Routes finali di risposta al client
