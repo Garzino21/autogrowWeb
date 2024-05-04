@@ -1,5 +1,5 @@
 import _http from "http";
-import _url from "url";
+import _url, { pathToFileURL } from "url";
 import _fs from "fs";
 import _express from "express";
 import _dotenv from "dotenv";
@@ -190,6 +190,34 @@ app.post("/api/dati", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("azioni");
+    let rq = collection.findOne({ "tipo": "gestioneAutomatico" });
+    rq.then((data) => {
+        res.send(data);
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
+});
+
+app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
+    let timer = req["body"].timer;
+    let selezionato = req["body"].selected;
+    let posizione = req["body"].posizione;  //posizione dell'elemento selezionato
+    console.log(posizione);
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("azioni");
+    let rq = collection.updateOne({ "tipo": "gestioneAutomatico"},{ $set: { [`disponibili.${posizione}.selected`]:selezionato}}); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+    rq.then((data) => {
+        res.send(data);
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
+});
+
 //serve a aggiungere dati alla temperatura
 app.get("/api/inviadati", async (req, res, next) => {
     //prendo data e ora all'invio del dato pk altrimenti dovrei avere un altro modulo su arduino
@@ -219,8 +247,7 @@ app.get("/api/inviadati", async (req, res, next) => {
         //let aggiungiT: boolean = false;
         //let aggiungiH: boolean = false;
 
-        if(risposta[1].valori!="")
-        {
+        if (risposta[1].valori != "") {
             console.log("-------------------------------------------------------------------------------------");
             if (risposta[1].valori[(risposta[1].valori.length) - 1].data != date) {    //date data di oggi
                 console.log("aggiorno storico");
@@ -240,7 +267,7 @@ app.get("/api/inviadati", async (req, res, next) => {
             //             aggiungiT = false;
             //         else
             //             aggiungiT = true;
-    
+
             //     }
             //     else if (dato.tipo == "umiditaAria") {
             //         if (dato.valori[dato.valori.length - 1].dato == hum)
@@ -249,8 +276,8 @@ app.get("/api/inviadati", async (req, res, next) => {
             //             aggiungiH = true;
             //     }
             // }
-    
-    
+
+
             // if (aggiungiT || aggiungiH) {
             //     await aggiungoTemperatura(temp, ora, res, date);
             //     await aggiungoUmidita(hum, ora, res, date);
@@ -262,8 +289,7 @@ app.get("/api/inviadati", async (req, res, next) => {
             // }
             //#endregion
         }
-        else
-        {
+        else {
             await aggiungoTemperatura(temp, ora, res, date);
             await aggiungoUmidita(hum, ora, res, date);
             res.send("aggiunto");
@@ -363,9 +389,9 @@ async function eliminareDatiVecchi(data: import("mongodb").WithId<import("bson")
         const client = new MongoClient(connectionString);
         await client.connect();
         let collection = client.db(DBNAME).collection("dati");
-        let valori:never;
+        let valori: never;
         //aggiungo il dato
-        let rq = collection.updateMany({},{ $set: {valori: []} })
+        let rq = collection.updateMany({}, { $set: { valori: [] } })
         rq.then(async (data) => {
             console.log("cancellato");
         });

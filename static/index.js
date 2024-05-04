@@ -34,6 +34,7 @@ $(document).ready(function () {
     let _thead = $("#thead");
     let _domanda = $(".domanda");
     let _selectVisualData = $("#selectVisualData");
+    let _tbodyAutomatico = $("#tbodyAutomatico");
 
     const ctx = $("#myChart");
 
@@ -59,6 +60,9 @@ $(document).ready(function () {
     _paginaDati.show();
     _progetto.hide();
     _btnStato.hide();
+
+    //presa dei dati
+    prendiIrrigazioneAutomatica();
 
     //gestione eventi
     _meteo.on("click", function () {
@@ -218,6 +222,67 @@ $(document).ready(function () {
             })
         }
     }
+
+
+    function prendiIrrigazioneAutomatica() {
+        let rq = inviaRichiesta("POST", "/api/prendiIrrigazioneAutomatica")
+        rq.then(function (response) {
+            console.log(response.data);
+            generaTabellaAutomatica(response.data);
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
+    }
+
+    let buttons = [];
+
+    function generaTabellaAutomatica(response) {
+        let i=0;
+        _tbodyAutomatico.empty();
+        for (let item of response.disponibili) {
+            let tr = $("<tr>").appendTo(_tbodyAutomatico);
+            $("<td>").text(item.hum).appendTo(tr);
+            $("<td>").text(item.timer).appendTo(tr);
+
+            let td = $("<td>").appendTo(tr);
+            let btn = $("<button>").appendTo(td).prop("value",i).on("click", function () {
+                if(btn.text() == "ATTIVO"){
+                    aggiornaAutomatico(false, item.hum, item.timer,$(this).prop("value"));
+                }
+                else    
+                    aggiornaAutomatico(true, item.hum, item.timer,$(this).prop("value"));
+            }).addClass("button").css({"width":"fit-content","margin":"auto", "height":"fit-content", "font-size":"14pt", "margin-top":"10px", "margin-bottom":"10px"});
+
+            if(item.selected == false){
+                btn.text("DISATTIVO");
+            }
+            else{
+                btn.text("ATTIVO");
+            }
+            i++;
+        }
+    }
+
+    function aggiornaAutomatico(selected, hum, timer, posizione) {
+        let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", {"hum": hum, "timer": timer, "selected": selected, "posizione": posizione})
+        rq.then(function (response) {
+            console.log(response.data);
+            prendiIrrigazioneAutomatica();
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
+    }
+
     function prendiVisualDataOggi(visualData, response) {
 
         let data = [];
@@ -758,8 +823,8 @@ $(document).ready(function () {
         giornoScelto = giornoScelto[2];
         console.log("giorni " + giornoScelto, giornoOggi);            //problema se giorno scelto è minore di giorno oggi
 
-        let num= capisciMese()
-        console.log("num"+ num);
+        let num = capisciMese()
+        console.log("num" + num);
         let oreDiff
         let delay
         // if (giornoScelto < giornoOggi) {
@@ -767,8 +832,8 @@ $(document).ready(function () {
         //     oreDiff = (delay * 24) - (delay * 1);
         // }
         // else {
-            delay = giornoScelto - giornoOggi;
-            oreDiff = (delay * 24) - (delay * 1);
+        delay = giornoScelto - giornoOggi;
+        oreDiff = (delay * 24) - (delay * 1);
         //}
         // let a= moment(giornoScelto).format("DD")
         // let b= moment(giornoOggi).format("DD")
