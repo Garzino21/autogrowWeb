@@ -8,11 +8,14 @@ import _fileUpload from "express-fileupload";
 import _streamifier from "streamifier";
 import _bcrypt from "bcryptjs";
 import _jwt from "jsonwebtoken";
-
+import { Server, Socket } from "socket.io";
+import OpenAI from "openai";
 
 // Lettura delle password e parametri fondamentali
 _dotenv.config({ "path": ".env" });
 
+// Variabili relative a OpenAI
+const OPENAI_API_KEY = process.env.api_key_chatgpt;
 
 // Variabili relative a MongoDB ed Express
 import { MongoClient, ObjectId } from "mongodb";
@@ -190,6 +193,31 @@ app.post("/api/dati", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+app.post("/api/domanda", async (req, res, next) => {
+    let domanda = req["body"].domanda;
+    console.log(domanda);
+    const openai = new OpenAI({apiKey: OPENAI_API_KEY});
+    const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+            {
+                "role": "system",
+                "content": "Sei un esperto in tutto l'ambito del meteo e agricoltura quindi devi rispondere alle domande in modo super preciso"
+            },
+            {
+                "role": "user",
+                "content": domanda
+            }
+        ],
+        temperature: 1,
+        max_tokens: 64,
+        top_p: 1,
+    });
+
+    console.log(response);
+    res.send(response);
+});
+
 app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
     const client = new MongoClient(connectionString);
     await client.connect();
@@ -210,7 +238,7 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("azioni");
-    let rq = collection.updateOne({ "tipo": "gestioneAutomatico"},{ $set: { [`disponibili.${posizione}.selected`]:selezionato}}); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+    let rq = collection.updateOne({ "tipo": "gestioneAutomatico" }, { $set: { [`disponibili.${posizione}.selected`]: selezionato } }); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
     rq.then((data) => {
         res.send(data);
     });
@@ -353,6 +381,10 @@ app.post("/api/prendiAzioni", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+app.post("/api/provaSocket", async (req, res, next) => {
+    res.send("ok");
+});
+
 async function aggiungoUmidita(hum: any, ora: any, res: any, date: any) {
     //mi collego al db
     const client = new MongoClient(connectionString);
@@ -439,8 +471,33 @@ async function aggiungoDatiStorico(campo: any, res: any, req: any, tipo: any) {
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
 }
 
+//********************************************************************************************//
+// Gestione dei Web Socket
+//********************************************************************************************//
 
-
+const io = new Server(server);
+let users = [];
+io.on('connection', function (clientSocket) {
+    let user;
+    clientSocket.on("JOIN-ROOM", function (data) {
+        user = JSON.parse(data);
+        console.log(`User ${user.username} isConnected! CLIENT SOCKET ID: ${clientSocket.id}`);
+        users.push(user);
+        // Inserisce il clientSocket nella room scelta dall'utente
+        clientSocket.join(user.room);
+        console.log(`${user.username} inserito correttamente nella stanza ${user.room}`);
+        clientSocket.emit("JOIN-RESULT", "OK");
+        clientSocket.emit("NEW-CLIENT-CONNECTED", `${user.username}`);
+    });
+    clientSocket.on("NEW-MESSAGE", (data) => {
+        let message = { "from": user.username, "message": data, "date": new Date() }
+        io.to(user.room).emit("MESSAGE-NOTIFY", JSON.stringify(message));
+    });
+    clientSocket.on("disconnect", () => {
+        clientSocket.leave(user.room);
+        users.splice(users.indexOf(user), 1);
+    });
+});
 //********************************************************************************************//
 // Default route e gestione degli errori
 //********************************************************************************************//

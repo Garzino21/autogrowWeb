@@ -35,8 +35,27 @@ $(document).ready(function () {
     let _domanda = $(".domanda");
     let _selectVisualData = $("#selectVisualData");
     let _tbodyAutomatico = $("#tbodyAutomatico");
+    let _chatBtn = $("#chatBtn");
 
     const ctx = $("#myChart");
+
+    async function provoGPT(domanda , listaMex) {
+        console.log(domanda);    
+        let rq = inviaRichiesta("POST", "/api/domanda",{ "domanda": domanda})
+        rq.then(function (response) {
+           console.log(response);
+           let ul = $("<ul>").appendTo(listaMex).css({"overflow":"hidden","style-type":"none"});
+           $("<li>").text(response.data.choices[0].message.content).addClass("risposta").css("style-type","none").appendTo(ul);
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
+    }
+
 
     //RIQUADRO ORARIO
     setInterval(function () {
@@ -65,6 +84,37 @@ $(document).ready(function () {
     prendiIrrigazioneAutomatica();
 
     //gestione eventi
+    _chatBtn.on("click", function () {
+        let html = `  <div class="card">
+        <div class="chat-header">Chat</div>
+          <div class="chat-window">
+            <ul class="message-list"></ul>
+          </div>
+          <div class="chat-input">
+              <input type="text" class="message-input" placeholder="Type your message here">
+              <button id="btnDomanda" class="send-button">Send</button>
+          </div>
+        </div>`;
+
+        Swal.fire({
+            html: html,
+            background: "rgb(231, 255, 186)",
+            width: "80%",
+            heightAuto: "false",
+            confirmButtonText: "OK",
+        });
+    });
+
+    $(document).on('click', "#btnDomanda", function() {
+       let domanda= $(".message-input");
+       let listaMex=$(".message-list");
+       let domandona=domanda.val();
+       let ul = $("<ul>").appendTo(listaMex).css({"overflow":"hidden","style-type":"none"});
+       $("<li>").text(domanda.val()).addClass("user").css("style-type","none").appendTo(ul);
+       domanda.val("");
+       provoGPT(domandona, listaMex);
+    });
+
     _meteo.on("click", function () {
         funzMeteo(_meteo.val());
     });
@@ -242,7 +292,7 @@ $(document).ready(function () {
     let buttons = [];
 
     function generaTabellaAutomatica(response) {
-        let i=0;
+        let i = 0;
         _tbodyAutomatico.empty();
         for (let item of response.disponibili) {
             let tr = $("<tr>").appendTo(_tbodyAutomatico);
@@ -250,18 +300,18 @@ $(document).ready(function () {
             $("<td>").text(item.timer).appendTo(tr);
 
             let td = $("<td>").appendTo(tr);
-            let btn = $("<button>").appendTo(td).prop("value",i).on("click", function () {
-                if(btn.text() == "ATTIVO"){
-                    aggiornaAutomatico(false, item.hum, item.timer,$(this).prop("value"));
+            let btn = $("<button>").appendTo(td).prop("value", i).on("click", function () {
+                if (btn.text() == "ATTIVO") {
+                    aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
                 }
-                else    
-                    aggiornaAutomatico(true, item.hum, item.timer,$(this).prop("value"));
-            }).addClass("button").css({"width":"fit-content","margin":"auto", "height":"fit-content", "font-size":"14pt", "margin-top":"10px", "margin-bottom":"10px"});
+                else
+                    aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
+            }).addClass("button").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
-            if(item.selected == false){
+            if (item.selected == false) {
                 btn.text("DISATTIVO");
             }
-            else{
+            else {
                 btn.text("ATTIVO");
             }
             i++;
@@ -269,7 +319,7 @@ $(document).ready(function () {
     }
 
     function aggiornaAutomatico(selected, hum, timer, posizione) {
-        let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", {"hum": hum, "timer": timer, "selected": selected, "posizione": posizione})
+        let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", { "hum": hum, "timer": timer, "selected": selected, "posizione": posizione })
         rq.then(function (response) {
             console.log(response.data);
             prendiIrrigazioneAutomatica();

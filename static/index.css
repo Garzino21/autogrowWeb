@@ -441,7 +441,7 @@ nav{
 
 /* MEDIA QUERIES */
 
-@media all and (max-width: 991px) {
+@media screen and (max-width: 991px) {
   #meteo{
     display: none;
   }
@@ -564,4 +564,230 @@ nav{
   #progetto h2{
     font-size: 3.5rem;
   }
+
+  #chatBtn{
+    width: 100px;
+    height: 100px;
+  }
+
+  #image{
+    width: 50px;
+    height: 50px;
+    margin: 0;
+  }
+
+  .swal2-html-container{
+    width: 800px!important;
+    height: 700px!important;
+    margin: 0!important;
+  }
+  .card{
+    width: 800px!important;
+    height: 700px!important;
+    margin: 0!important;
+  }
+  .chat-window{
+    height: 550px!important;
+  }
+
+  .message-input{
+    float: left!important;
+    width: 80%!important;
+    height: 70px!important;
+    font-size: 25pt!important;
+  }
+
+  button .send-button{
+    width: 50px!important;
+    height: 70px!important;
+    font-size: 15pt!important;
+  }
+
+  div.chat-header{
+    font-size: 30pt !important;
+    height: 80px!important;
+  }
+
+  div.chat-window{
+    font-size: 25pt!important;
+  }
 }
+
+
+/* .loader {
+  width: 48px;
+  height: 48px;
+  display: inline-block;
+  position: relative;
+}
+.loader::after,
+.loader::before {
+  content: '';  
+  box-sizing: border-box;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FFF;
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: animloader 2s linear infinite;
+}
+.loader::after {
+  animation-delay: 1s;
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+} */
+
+
+/* chat */
+.chatBtn {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background-color: rgb(0, 128, 0);;
+  background-image: linear-gradient(147deg, rgb(158, 217, 158), rgb(0, 128, 0),rgb(81, 191, 81));
+  cursor: pointer;
+  padding-top: 3px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.164);
+  position: relative;
+  background-size: 300%;
+  background-position: left;
+  transition-duration: 1s;
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
+
+.tooltip {
+  position: absolute;
+  top: -40px;
+  opacity: 0;
+  background-color: rgb(81, 191, 81);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition-duration: .5s;
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+.chatBtn:hover .tooltip {
+  opacity: 1;
+  transition-duration: .5s;
+}
+
+.chatBtn:hover {
+  background-position: right;
+  transition-duration: 1s;
+}
+
+.card {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+  background-color: rgb(173, 201, 165);
+  color: rgb(109, 137, 102);
+  font-weight: bold;
+  font-size: 16pt!important;
+  padding: 10px;
+  font-size: 18px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.chat-window {
+  height: 220px;
+  overflow-y: scroll;
+}
+
+.message-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.message-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 5px;
+  font-size: 14px;
+}
+
+.send-button {
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  background-color: rgb(173, 201, 165);
+  color: rgb(109, 137, 102);
+  font-size: 14px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.send-button:hover {
+  background-color: rgb(109, 137, 102);
+  color: rgb(173, 201, 165);
+}
+
+.swal2-html-container{
+  display: inline-block;
+  margin: 0!important;
+}
+
+.swal2-actions{
+  display: none!important;
+}
+
+div:where(.swal2-container) div:where(.swal2-popup) {
+  padding: 0!important; 
+}
+
+.user{
+  width: 50%;
+  background-color: rgb(173, 201, 165);
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px;
+}
+.risposta{
+  width: 60%;
+  background-color: rgb(144, 190, 196);
+  padding: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  float: right;
+}
+    
