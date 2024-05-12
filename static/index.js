@@ -1,13 +1,11 @@
 //gestire tutto il lato dell'irrigazione
-//gestire che se clicco su un orario del meteo della swal mi dia le precipitazioni e il vento
-//gestire il gps quindi mettere la posizione su maps quindi coppo un gps e metto la posizione
 //opzionale gestire una ventola che faccia circolare l'aria
-//opzionale gestire l'acqua rimanente nel serbatoio
 //da arduino metto che appena acceso manda un dato e poi aspetta 10 minuti e manda un altro dato
 //usare millis invece che delay
+//mettere a posto bug del meteo che a volte mette undefined
+//problema della tabella automatica che se schiaccio su attivo me lo lascia attivo
 
 //icone https://icons8.it/icon/set/meteo/fluency
-
 //https://uiverse.io/
 
 $(document).ready(function () {
@@ -39,13 +37,13 @@ $(document).ready(function () {
 
     const ctx = $("#myChart");
 
-    async function provoGPT(domanda , listaMex) {
-        console.log(domanda);    
-        let rq = inviaRichiesta("POST", "/api/domanda",{ "domanda": domanda})
+    async function provoGPT(domanda, listaMex) {
+        console.log(domanda);
+        let rq = inviaRichiesta("POST", "/api/domanda", { "domanda": domanda })
         rq.then(function (response) {
-           console.log(response);
-           let ul = $("<ul>").appendTo(listaMex).css({"overflow":"hidden","style-type":"none"});
-           $("<li>").text(response.data.choices[0].message.content).addClass("risposta").css("style-type","none").appendTo(ul);
+            console.log(response);
+            let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "style-type": "none" });
+            $("<li>").text(response.data.choices[0].message.content).addClass("risposta").css("style-type", "none").appendTo(ul);
         })
         rq.catch(function (err) {
             if (err.response.status == 401) {
@@ -55,7 +53,6 @@ $(document).ready(function () {
                 errore(err);
         })
     }
-
 
     //RIQUADRO ORARIO
     setInterval(function () {
@@ -106,14 +103,14 @@ $(document).ready(function () {
         });
     });
 
-    $(document).on('click', "#btnDomanda", function() {
-       let domanda= $(".message-input");
-       let listaMex=$(".message-list");
-       let domandona=domanda.val();
-       let ul = $("<ul>").appendTo(listaMex).css({"overflow":"hidden","style-type":"none"});
-       $("<li>").text(domanda.val()).addClass("user").css("style-type","none").appendTo(ul);
-       domanda.val("");
-       provoGPT(domandona, listaMex);
+    $(document).on('click', "#btnDomanda", function () {
+        let domanda = $(".message-input");
+        let listaMex = $(".message-list");
+        let domandona = domanda.val();
+        let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "style-type": "none" });
+        $("<li>").text(domanda.val()).addClass("user").css("style-type", "none").appendTo(ul);
+        domanda.val("");
+        provoGPT(domandona, listaMex);
     });
 
     _meteo.on("click", function () {
@@ -303,16 +300,22 @@ $(document).ready(function () {
             let td = $("<td>").appendTo(tr);
             let btn = $("<button>").appendTo(td).prop("value", i).on("click", function () {
                 if (btn.text() == "ATTIVO") {
+                    btn.text("Caricando...");
+                    btn.prop("disabled", true);
                     aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
                 }
                 else
-                    aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
+                    btn.text("Caricando...");
+                btn.prop("disabled", true);
+                aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
             }).addClass("button").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
             if (item.selected == false) {
+                btn.prop("disabled", false);
                 btn.text("DISATTIVO");
             }
             else {
+                btn.prop("disabled", false);
                 btn.text("ATTIVO");
             }
             i++;
@@ -324,6 +327,7 @@ $(document).ready(function () {
         rq.then(function (response) {
             console.log(response.data);
             prendiIrrigazioneAutomatica();
+
         })
         rq.catch(function (err) {
             if (err.response.status == 401) {

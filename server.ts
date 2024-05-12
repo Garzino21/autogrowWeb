@@ -196,13 +196,13 @@ app.post("/api/dati", async (req, res, next) => {
 app.post("/api/domanda", async (req, res, next) => {
     let domanda = req["body"].domanda;
     console.log(domanda);
-    const openai = new OpenAI({apiKey: OPENAI_API_KEY});
+    const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
     const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [
             {
                 "role": "system",
-                "content": "Sei un esperto in tutto l'ambito del meteo e agricoltura quindi devi rispondere alle domande in modo super preciso"
+                "content": "Sei un esperto in tutto l'ambito meteorologico, il calendario lunare e agricoltura quindi devi rispondere alle domande in modo super preciso. prendi come zona climatica di riferimento l'italia nord-occidentale ad un altitudine di 650 metri. nella risposta non ripetere la domanda."
             },
             {
                 "role": "user",
@@ -210,7 +210,7 @@ app.post("/api/domanda", async (req, res, next) => {
             }
         ],
         temperature: 1,
-        max_tokens: 64,
+        max_tokens: 80,
         top_p: 1,
     });
 
@@ -234,7 +234,17 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     let timer = req["body"].timer;
     let selezionato = req["body"].selected;
     let posizione = req["body"].posizione;  //posizione dell'elemento selezionato
-    console.log(posizione);
+    console.log("selezzzz"+selezionato);
+    if (selezionato == true) {
+        const client = new MongoClient(connectionString);
+        await client.connect();
+        let collection = client.db(DBNAME).collection("azioni");
+        let rq = collection.updateMany({ "tipo": "gestioneAutomatico" }, {$set: {"disponibili.$[].selected": false }}); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+        rq.then((data) => {console.log(data)});
+        rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+        rq.finally(() => client.close());
+    }
+
     const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("azioni");
