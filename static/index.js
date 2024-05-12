@@ -98,8 +98,9 @@ $(document).ready(function () {
 
         Swal.fire({
             html: html,
+            customClass: "swalGPT",
             background: "rgb(231, 255, 186)",
-            width: "80%",
+            width: "50%",
             heightAuto: "false",
             confirmButtonText: "OK",
         });
