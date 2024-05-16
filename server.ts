@@ -132,6 +132,87 @@ app.post("/api/login", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+app.get("/api/inviadati", async (req, res, next) => {
+    //prendo data e ora all'invio del dato pk altrimenti dovrei avere un altro modulo su arduino
+    let now = new Date();
+    let ora;
+    let date = now.toLocaleDateString();
+    console.log(now.toLocaleDateString());
+    if (now.getMinutes() < 10)
+        if (now.getMinutes() == 0)
+            ora = now.getHours() + ":" + now.getMinutes() + "0";
+        else
+            ora = now.getHours() + ":" + "0" + now.getMinutes();
+    else
+        ora = now.getHours() + ":" + now.getMinutes();
+
+    //prendo il dato e il tipo
+    let temp = req["query"].temp;
+    let hum = req["query"].hum;
+    console.log(temp);
+    console.log(hum);
+
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("dati");
+    let rq = collection.find({}).toArray();
+    rq.then(async (risposta) => {
+        //let aggiungiT: boolean = false;
+        //let aggiungiH: boolean = false;
+
+        if (risposta[1].valori != "") {
+            console.log("-------------------------------------------------------------------------------------");
+            if (risposta[1].valori[(risposta[1].valori.length) - 1].data != date) {    //date data di oggi
+                console.log("aggiorno storico");
+                //await aggiornaStorico(risposta, date, res, req); 
+                //await eliminareDatiVecchi(risposta, date, res, req);
+            }
+
+            await aggiungoTemperatura(temp, ora, res, date);
+            await aggiungoUmidita(hum, ora, res, date);
+            res.send("aggiunto");
+
+            //#region Codice controllo se i dati sono uguali
+            //NON FACCIO PIU IL CONTROLLO SE CAMBIANO I DATI PER POTER VISUALIZZARE AL MEGLIO I GRAFICI
+            // for (let dato of risposta) {
+            //     if (dato.tipo == "temperatura") {
+            //         if (dato.valori[dato.valori.length - 1].dato == temp)
+            //             aggiungiT = false;
+            //         else
+            //             aggiungiT = true;
+
+            //     }
+            //     else if (dato.tipo == "umiditaAria") {
+            //         if (dato.valori[dato.valori.length - 1].dato == hum)
+            //             aggiungiH = false;
+            //         else
+            //             aggiungiH = true;
+            //     }
+            // }
+
+
+            // if (aggiungiT || aggiungiH) {
+            //     await aggiungoTemperatura(temp, ora, res, date);
+            //     await aggiungoUmidita(hum, ora, res, date);
+            //     res.send("aggiunto");
+            // }
+            // else {
+            //     console.log("dati uguali");
+            //     res.send("dati uguali");
+            // }
+            //#endregion
+        }
+        else {
+            await aggiungoTemperatura(temp, ora, res, date);
+            await aggiungoUmidita(hum, ora, res, date);
+            res.send("aggiunto");
+        }
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
+
+});
+
 // 11. Controllo del token
 app.use("/api/", (req: any, res: any, next: any) => {
     console.log("Controllo tokenccccccccccc");
@@ -256,90 +337,8 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
-//serve a aggiungere dati alla temperatura
-app.get("/api/inviadati", async (req, res, next) => {
-    //prendo data e ora all'invio del dato pk altrimenti dovrei avere un altro modulo su arduino
-    let now = new Date();
-    let ora;
-    let date = now.toLocaleDateString();
-    console.log(now.toLocaleDateString());
-    if (now.getMinutes() < 10)
-        if (now.getMinutes() == 0)
-            ora = now.getHours() + ":" + now.getMinutes() + "0";
-        else
-            ora = now.getHours() + ":" + "0" + now.getMinutes();
-    else
-        ora = now.getHours() + ":" + now.getMinutes();
-
-    //prendo il dato e il tipo
-    let temp = req["query"].temp;
-    let hum = req["query"].hum;
-    console.log(temp);
-    console.log(hum);
-
-    const client = new MongoClient(connectionString);
-    await client.connect();
-    let collection = client.db(DBNAME).collection("dati");
-    let rq = collection.find({}).toArray();
-    rq.then(async (risposta) => {
-        //let aggiungiT: boolean = false;
-        //let aggiungiH: boolean = false;
-
-        if (risposta[1].valori != "") {
-            console.log("-------------------------------------------------------------------------------------");
-            if (risposta[1].valori[(risposta[1].valori.length) - 1].data != date) {    //date data di oggi
-                console.log("aggiorno storico");
-                //await aggiornaStorico(risposta, date, res, req); 
-                //await eliminareDatiVecchi(risposta, date, res, req);
-            }
-
-            await aggiungoTemperatura(temp, ora, res, date);
-            await aggiungoUmidita(hum, ora, res, date);
-            res.send("aggiunto");
-
-            //#region Codice controllo se i dati sono uguali
-            //NON FACCIO PIU IL CONTROLLO SE CAMBIANO I DATI PER POTER VISUALIZZARE AL MEGLIO I GRAFICI
-            // for (let dato of risposta) {
-            //     if (dato.tipo == "temperatura") {
-            //         if (dato.valori[dato.valori.length - 1].dato == temp)
-            //             aggiungiT = false;
-            //         else
-            //             aggiungiT = true;
-
-            //     }
-            //     else if (dato.tipo == "umiditaAria") {
-            //         if (dato.valori[dato.valori.length - 1].dato == hum)
-            //             aggiungiH = false;
-            //         else
-            //             aggiungiH = true;
-            //     }
-            // }
-
-
-            // if (aggiungiT || aggiungiH) {
-            //     await aggiungoTemperatura(temp, ora, res, date);
-            //     await aggiungoUmidita(hum, ora, res, date);
-            //     res.send("aggiunto");
-            // }
-            // else {
-            //     console.log("dati uguali");
-            //     res.send("dati uguali");
-            // }
-            //#endregion
-        }
-        else {
-            await aggiungoTemperatura(temp, ora, res, date);
-            await aggiungoUmidita(hum, ora, res, date);
-            res.send("aggiunto");
-        }
-    });
-    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
-    rq.finally(() => client.close());
-
-});
-
 app.post("/api/prendidati", async (req, res, next) => {
-    const client = new MongoClient(connectionString);
+    const client = new MongoClient(connectionString);   
     await client.connect();
     let collection = client.db(DBNAME).collection("dati");
     let rq = collection.find({}).toArray();
