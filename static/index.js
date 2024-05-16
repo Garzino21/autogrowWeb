@@ -777,13 +777,10 @@ $(document).ready(function () {
             }
         }
 
-
         for (let giorn of giorniOrdinati) {
             giorn = calcolaNomeGiorno(giorn);
             $("<td>").text(giorn).appendTo(_thead.children().eq(0));
         }
-
-
     }
 
 
@@ -881,14 +878,14 @@ $(document).ready(function () {
         console.log("num" + num);
         let oreDiff
         let delay
-        // if (giornoScelto < giornoOggi) {
-        //     delay = num - (giornoOggi - giornoScelto);
-        //     oreDiff = (delay * 24) - (delay * 1);
-        // }
-        // else {
-        delay = giornoScelto - giornoOggi;
-        oreDiff = (delay * 24) - (delay * 1);
-        //}
+        if (giornoScelto < giornoOggi) {         //il problema penso sia il fatto che se sono a aprile devo prendere il
+            delay = num - (giornoOggi - giornoScelto);
+            oreDiff = (delay * 24) - (delay * 1);
+        }
+        else {
+            delay = giornoScelto - giornoOggi;
+            oreDiff = (delay * 24) - (delay * 1);
+        }
         // let a= moment(giornoScelto).format("DD")
         // let b= moment(giornoOggi).format("DD")
         // a.diff(b, 'days')
@@ -1009,7 +1006,7 @@ $(document).ready(function () {
         let n
         switch (mese) {
             case "1":
-                n = 30;
+                n = 31;
                 break;
             case "2":
                 n = 28;
