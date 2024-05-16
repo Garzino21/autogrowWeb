@@ -3,7 +3,6 @@
 //da arduino metto che appena acceso manda un dato e poi aspetta 10 minuti e manda un altro dato
 //usare millis invece che delay
 //mettere a posto bug del meteo che a volte mette undefined
-//problema della tabella automatica che se schiaccio su attivo me lo lascia attivo
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -272,11 +271,11 @@ $(document).ready(function () {
     }
 
 
-    function prendiIrrigazioneAutomatica() {
+    async function prendiIrrigazioneAutomatica() {
         let rq = inviaRichiesta("POST", "/api/prendiIrrigazioneAutomatica")
-        rq.then(function (response) {
+        rq.then(async function (response) {
             console.log(response.data);
-            generaTabellaAutomatica(response.data);
+            await generaTabellaAutomatica(response.data);
         })
         rq.catch(function (err) {
             if (err.response.status == 401) {
@@ -304,10 +303,11 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
                 }
-                else
+                else {
                     btn.text("Caricando...");
-                btn.prop("disabled", true);
-                aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
+                    btn.prop("disabled", true);
+                    aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
+                }
             }).addClass("button").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
             if (item.selected == false) {
@@ -322,12 +322,11 @@ $(document).ready(function () {
         }
     }
 
-    function aggiornaAutomatico(selected, hum, timer, posizione) {
+    async function aggiornaAutomatico(selected, hum, timer, posizione) {
         let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", { "hum": hum, "timer": timer, "selected": selected, "posizione": posizione })
-        rq.then(function (response) {
+        rq.then(async function (response) {
             console.log(response.data);
-            prendiIrrigazioneAutomatica();
-
+            await prendiIrrigazioneAutomatica();
         })
         rq.catch(function (err) {
             if (err.response.status == 401) {
