@@ -204,10 +204,6 @@ table {
   margin: 0 auto;
 }
 
-td {
-  border: 2px solid black;
-}
-
 .button:hover {
   cursor: pointer;
 }
@@ -803,4 +799,19 @@ div:where(.swal2-container) div:where(.swal2-popup) {
   margin: 5px;
   float: right;
 }
+
+/* #tabAutomatico{
+  border-collapse: unset!important;
+  border: 2px solid black!important;
+  border-radius: 25px!important;
+}
+
+#tabAutomatico td{
+  border: unset!important;
+}
+
+.tdAuto{
+  float: right; 
+  margin-right: 8%!important;
+} */
     

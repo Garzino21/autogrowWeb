@@ -308,7 +308,7 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
                 }
-            }).addClass("button").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
+            }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
             if (item.selected == false) {
                 btn.prop("disabled", false);
