@@ -1,8 +1,8 @@
 //gestire tutto il lato dell'irrigazione
-//opzionale gestire una ventola che faccia circolare l'aria
-//da arduino metto che appena acceso manda un dato e poi aspetta 10 minuti e manda un altro dato
-//usare millis invece che delay
 //mettere a posto bug del meteo che a volte mette undefined
+
+//se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
+//risolvere il token undefined basta fare le prime richieste tutte annidate
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -193,8 +193,6 @@ $(document).ready(function () {
                 _modalitaIrrigazione.css({ "margin-bottom": "20px", "float": "unset" })
             }
             aggiornoDb("AUTOMATICO");
-
-
         }
         else {
             _modalitaIrrigazione.text("Caricamento...");
@@ -203,8 +201,9 @@ $(document).ready(function () {
     });
 
     //btnStato acceso spento irriga in manuale
-    _btnStato.on("click", function () {
+    _btnStato.on("click", async function () {
         if (_btnStato.text() == "ACCENDI") {
+            await attivaDisattivaIrrigazione(true);
             _btnStato.text("SPEGNI").css({ "background-color": "red", "border-color": "red" });
             Swal.fire({
                 icon: "success",
@@ -217,6 +216,7 @@ $(document).ready(function () {
         }
         else {
             _btnStato.text("ACCENDI").css({ "background-color": "green", "border-color": "green" });;
+            await attivaDisattivaIrrigazione(false);
             Swal.fire({
                 icon: "success",
                 html: `<div class='indent'>HAI SPENTO L'IRRIGAZIONE</div>`,
@@ -227,6 +227,20 @@ $(document).ready(function () {
             });
         }
     });
+
+    function attivaDisattivaIrrigazione(stato){
+        let rq = inviaRichiesta("POST", "/api/attivaDisattivaIrrigazione",{"stato":stato})
+            rq.then(function (response) {
+                console.log(response)
+            })
+            rq.catch(function (err) {
+                if (err.response.status == 401) {
+                    _lblErrore.show();
+                }
+                else
+                    errore(err);
+            })
+    }
 
     //prendo dati vecchi
     _selectStorico.on("change", function () {

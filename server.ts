@@ -17,6 +17,9 @@ _dotenv.config({ "path": ".env" });
 // Variabili relative a OpenAI
 const OPENAI_API_KEY = process.env.api_key_chatgpt;
 
+//irrigazione
+let statoIrrigazione=false;
+
 // Variabili relative a MongoDB ed Express
 import { MongoClient, ObjectId } from "mongodb";
 const DBNAME = process.env.DBNAME;
@@ -130,6 +133,22 @@ app.post("/api/login", async (req, res, next) => {
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err.message}`));
     rq.finally(() => client.close());
+});
+app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
+    res.send(statoIrrigazione);
+    // const client = new MongoClient(connectionString);
+    // await client.connect();
+    // let collection = client.db(DBNAME).collection("azioni");
+    // let rq = collection.findOne({ tipo: "irrigazione" })
+    // rq.then(async (risposta) => {
+    //     console.log(risposta);
+    //     if (risposta.acceso == false)
+    //         res.send("spegni");
+    //     else
+    //         res.send("accendi");
+    // });
+    // rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    // rq.finally(() => client.close());
 });
 
 app.get("/api/inviadati", async (req, res, next) => {
@@ -315,13 +334,13 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     let timer = req["body"].timer;
     let selezionato = req["body"].selected;
     let posizione = req["body"].posizione;  //posizione dell'elemento selezionato
-    console.log("selezzzz"+selezionato);
+    console.log("selezzzz" + selezionato);
     if (selezionato == true) {
         const client = new MongoClient(connectionString);
         await client.connect();
         let collection = client.db(DBNAME).collection("azioni");
-        let rq = collection.updateMany({ "tipo": "gestioneAutomatico" }, {$set: {"disponibili.$[].selected": false }}); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
-        rq.then((data) => {console.log(data)});
+        let rq = collection.updateMany({ "tipo": "gestioneAutomatico" }, { $set: { "disponibili.$[].selected": false } }); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+        rq.then((data) => { console.log(data) });
         rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
         rq.finally(() => client.close());
     }
@@ -337,8 +356,12 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
+app.post("/api/attivaDisattivaIrrigazione", async (req, res, next) => {
+    statoIrrigazione=req["body"].stato;
+});
+
 app.post("/api/prendidati", async (req, res, next) => {
-    const client = new MongoClient(connectionString);   
+    const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("dati");
     let rq = collection.find({}).toArray();
@@ -346,6 +369,8 @@ app.post("/api/prendidati", async (req, res, next) => {
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
     rq.finally(() => client.close());
 });
+
+
 
 app.post("/api/prendiazioni", async (req, res, next) => {
     const client = new MongoClient(connectionString);
@@ -484,29 +509,30 @@ async function aggiungoDatiStorico(campo: any, res: any, req: any, tipo: any) {
 // Gestione dei Web Socket
 //********************************************************************************************//
 
-const io = new Server(server);
-let users = [];
-io.on('connection', function (clientSocket) {
-    let user;
-    clientSocket.on("JOIN-ROOM", function (data) {
-        user = JSON.parse(data);
-        console.log(`User ${user.username} isConnected! CLIENT SOCKET ID: ${clientSocket.id}`);
-        users.push(user);
-        // Inserisce il clientSocket nella room scelta dall'utente
-        clientSocket.join(user.room);
-        console.log(`${user.username} inserito correttamente nella stanza ${user.room}`);
-        clientSocket.emit("JOIN-RESULT", "OK");
-        clientSocket.emit("NEW-CLIENT-CONNECTED", `${user.username}`);
-    });
-    clientSocket.on("NEW-MESSAGE", (data) => {
-        let message = { "from": user.username, "message": data, "date": new Date() }
-        io.to(user.room).emit("MESSAGE-NOTIFY", JSON.stringify(message));
-    });
-    clientSocket.on("disconnect", () => {
-        clientSocket.leave(user.room);
-        users.splice(users.indexOf(user), 1);
-    });
-});
+// const io = new Server(server);
+// let users = [];
+// io.on('connection', function (clientSocket) {
+//     let user;
+//     clientSocket.on("JOIN-ROOM", function (data) {
+//         user = JSON.parse(data);
+//         console.log(`User ${user.username} isConnected! CLIENT SOCKET ID: ${clientSocket.id}`);
+//         users.push(user);
+//         // Inserisce il clientSocket nella room scelta dall'utente
+//         clientSocket.join(user.room);
+//         console.log(`${user.username} inserito correttamente nella stanza ${user.room}`);
+//         clientSocket.emit("JOIN-RESULT", "OK");
+//         clientSocket.emit("NEW-CLIENT-CONNECTED", `${user.username}`);
+//     });
+//     clientSocket.on("NEW-MESSAGE", (data) => {
+//         let message = { "from": user.username, "message": data, "date": new Date() }
+//         io.to(user.room).emit("MESSAGE-NOTIFY", JSON.stringify(message));
+//     });
+//     clientSocket.on("disconnect", () => {
+//         clientSocket.leave(user.room);
+//         users.splice(users.indexOf(user), 1);
+//     });
+// });
+
 //********************************************************************************************//
 // Default route e gestione degli errori
 //********************************************************************************************//
