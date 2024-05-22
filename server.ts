@@ -135,7 +135,10 @@ app.post("/api/login", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
-    res.send(statoIrrigazione);
+    if (statoIrrigazione==true)
+        res.send("t");
+    else
+        res.send("f");
     // const client = new MongoClient(connectionString);
     // await client.connect();
     // let collection = client.db(DBNAME).collection("azioni");
@@ -319,16 +322,41 @@ app.post("/api/domanda", async (req, res, next) => {
 });
 
 app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
+    //prendiIrrigazioneAutomatica(res);
     const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("azioni");
-    let rq = collection.findOne({ "tipo": "gestioneAutomatico" });
+    let rq = collection.findOne({ "tipo": "gestioneAutomatico"});
     rq.then((data) => {
         res.send(data);
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
     rq.finally(() => client.close());
 });
+
+async function prendiIrrigazioneAutomatica(res: any){
+    let risposta = {};
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("azioni");
+    let rq = collection.findOne({ "tipo": "gestioneAutomatico"});
+    rq.then((data) => {
+        risposta = { ...risposta, ...data };
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
+    const newclient = new MongoClient(connectionString);
+    await newclient.connect();
+    let newcollection = newclient.db(DBNAME).collection("dati");
+    let newrq = newcollection.find({}).toArray();
+    newrq.then((data) => {
+        risposta = { ...risposta, ...data };
+       console.log(risposta);
+       res.send(risposta);
+    });
+    newrq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    newrq.finally(() => newclient.close());
+}
 
 app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     let timer = req["body"].timer;

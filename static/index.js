@@ -36,6 +36,9 @@ $(document).ready(function () {
 
     const ctx = $("#myChart");
 
+    //QUI FACCIO UNA RICHIESTA PER I DATI TOTALI INIZIALI 
+    // datiIniziali();      
+
     async function provoGPT(domanda, listaMex) {
         console.log(domanda);
         let rq = inviaRichiesta("POST", "/api/domanda", { "domanda": domanda })
@@ -77,7 +80,7 @@ $(document).ready(function () {
     _btnStato.hide();
 
     //presa dei dati
-    prendiIrrigazioneAutomatica();
+    prendiIrrigazioneAutomatica();              //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
     //gestione eventi
     _chatBtn.on("click", function () {
@@ -417,11 +420,11 @@ $(document).ready(function () {
 
     //prendo dati dal db
     //prendo il meteo
-    meteoOggi();
-    meteoSettimana();
+    meteoOggi();                          //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    meteoSettimana();                    //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 
-    //prendo le date dello storico per vedere se posso usare la select o no
+    //prendo le date dello storico per vedere se posso usare la select o no     //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     let dateStorico = [];
     rq = inviaRichiesta("POST", "/api/prendiStorico")
     rq.then(function (response) {
@@ -651,12 +654,14 @@ $(document).ready(function () {
         let precipitazioni = [];
         let nuvole = [];
         let day = [];
+        let neve= [];
 
         for (let i = 0; i < 23; i++) {
             time.push(response.data.hourly.time[i]);
             precipitazioni.push(response.data.hourly.precipitation[i]);
             nuvole.push(response.data.hourly.cloud_cover[i]);
             day.push(response.data.hourly.is_day[i]);
+            neve.push(response.data.hourly.snowfall[i]);
         }
 
         let oraAttuale = new Date().getHours();
@@ -675,10 +680,10 @@ $(document).ready(function () {
 
         }
         else if (precipitazioni[oraAttuale] >= 1 && precipitazioni[oraAttuale] <= 2) {
-            if (neve[i] > 0 && neve[i] < 0.5) {
+            if (neve[oraAttuale] > 0 && neve[oraAttuale] < 0.5) {
                 _meteo.prop("src", "img/neveLeggera.png")
             }
-            else if (neve[i] >= 0.5) {
+            else if (neve[oraAttuale] >= 0.5) {
                 _meteo.prop("src", "img/neveForte.png")
             }
             else {
