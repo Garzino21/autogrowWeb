@@ -2,6 +2,8 @@
 //mettere a posto bug del meteo che a volte mette undefined
 //se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
 
+//fare pezzo di logout e gestire tutte le prime chiamate in una unica dal server
+
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
 
