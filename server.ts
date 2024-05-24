@@ -10,6 +10,7 @@ import _bcrypt from "bcryptjs";
 import _jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 import OpenAI from "openai";
+import axios from 'axios';
 
 // Lettura delle password e parametri fondamentali
 _dotenv.config({ "path": ".env" });
@@ -18,7 +19,7 @@ _dotenv.config({ "path": ".env" });
 const OPENAI_API_KEY = process.env.api_key_chatgpt;
 
 //irrigazione
-let statoIrrigazione=false;
+let statoIrrigazione = false;
 
 // Variabili relative a MongoDB ed Express
 import { MongoClient, ObjectId } from "mongodb";
@@ -135,7 +136,7 @@ app.post("/api/login", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
-    if (statoIrrigazione==true)
+    if (statoIrrigazione == true)
         res.send("t");
     else
         res.send("f");
@@ -322,11 +323,10 @@ app.post("/api/domanda", async (req, res, next) => {
 });
 
 app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
-    //prendiIrrigazioneAutomatica(res);
     const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("azioni");
-    let rq = collection.findOne({ "tipo": "gestioneAutomatico"});
+    let rq = collection.findOne({ "tipo": "gestioneAutomatico" });
     rq.then((data) => {
         res.send(data);
     });
@@ -334,28 +334,70 @@ app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 
-async function prendiIrrigazioneAutomatica(res: any){
-    let risposta = {};
+app.get("/api/meteoOggi", async (req, res, next) => {
+    let rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&hourly=cloud_cover&hourly=precipitation&hourly=is_day&hourly=snowfall&timezone=Europe%2FBerlin")
+    rq.then(function (response) {
+        console.log(response.data); // Mostra i dati della risposta
+        res.send(JSON.stringify(response.data));
+    })
+    rq.catch(function (err) {
+        console.error(`Errore durante la richiesta GET:`);
+        res.status(500).send(`Errore durante la richiesta GET:`);
+    });
+});
+
+app.get("/api/meteoSettimana", async (req, res, next) => {
+    let rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_sum&daily=snowfall_sum&timezone=Europe%2FBerlin")
+    rq.then(function (response) {
+        console.log(response.data); // Mostra i dati della risposta
+        res.send(JSON.stringify(response.data));
+    })
+    rq.catch(function (err) {
+        console.error(`Errore durante la richiesta GET:`);
+        res.status(500).send(`Errore durante la richiesta GET:`);
+    });
+});
+
+
+function inviaRichiesta(method, url, parameters={}) {
+    let config = {
+        "baseURL": "",
+        "url": url,
+        "method": method.toUpperCase(),
+        "headers": {
+            "Accept": "application/json",
+        },
+        "timeout": 15000,
+        "responseType": "json",
+    }
+
+    console.log(config);
+
+    if (parameters instanceof FormData) {
+        config.headers["Content-Type"] = 'multipart/form-data;'
+        config["data"] = parameters     // Accept FormData, File, Blob
+    }
+    else if (method.toUpperCase() == "GET") {
+        config.headers["Content-Type"] = 'application/x-www-form-urlencoded;charset=utf-8'
+        config["params"] = parameters
+    }
+    else {
+        config.headers["Content-Type"] = 'application/json; charset=utf-8'
+        config["data"] = parameters
+    }
+    return axios(config as any);
+}
+
+async function prendiIrrigazioneAutomatica(res: any, risposta: any) {
     const client = new MongoClient(connectionString);
     await client.connect();
     let collection = client.db(DBNAME).collection("azioni");
-    let rq = collection.findOne({ "tipo": "gestioneAutomatico"});
+    let rq = collection.findOne({ "tipo": "gestioneAutomatico" });
     rq.then((data) => {
         risposta = { ...risposta, ...data };
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
     rq.finally(() => client.close());
-    const newclient = new MongoClient(connectionString);
-    await newclient.connect();
-    let newcollection = newclient.db(DBNAME).collection("dati");
-    let newrq = newcollection.find({}).toArray();
-    newrq.then((data) => {
-        risposta = { ...risposta, ...data };
-       console.log(risposta);
-       res.send(risposta);
-    });
-    newrq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
-    newrq.finally(() => newclient.close());
 }
 
 app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
@@ -385,7 +427,7 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
 });
 
 app.post("/api/attivaDisattivaIrrigazione", async (req, res, next) => {
-    statoIrrigazione=req["body"].stato;
+    statoIrrigazione = req["body"].stato;
 });
 
 app.post("/api/prendidati", async (req, res, next) => {

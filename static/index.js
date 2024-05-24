@@ -1,8 +1,6 @@
-//gestire tutto il lato dell'irrigazione
+//gestire il lato dell'irrigazione automatica
 //mettere a posto bug del meteo che a volte mette undefined
-
 //se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
-//risolvere il token undefined basta fare le prime richieste tutte annidate
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -34,10 +32,7 @@ $(document).ready(function () {
     let _tbodyAutomatico = $("#tbodyAutomatico");
     let _chatBtn = $("#chatBtn");
 
-    const ctx = $("#myChart");
-
-    //QUI FACCIO UNA RICHIESTA PER I DATI TOTALI INIZIALI 
-    // datiIniziali();      
+    const ctx = $("#myChart"); 
 
     async function provoGPT(domanda, listaMex) {
         console.log(domanda);
@@ -833,7 +828,7 @@ $(document).ready(function () {
 
     //invio richiesta meteo settimana
     function meteoSettimana() {
-        rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_sum&daily=snowfall_sum&timezone=Europe%2FBerlin")
+        rq = inviaRichiesta("GET", "/api/meteoSettimana")
         rq.then(function (response) {
             datiSettimana(response);
         })
@@ -848,7 +843,7 @@ $(document).ready(function () {
 
     //invio richiesta meteo oggi
     function meteoOggi() {
-        let rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&hourly=cloud_cover&hourly=precipitation&hourly=is_day&hourly=snowfall&timezone=Europe%2FBerlin")
+        let rq = inviaRichiesta("GET", "/api/meteoOggi")
         rq.then(function (response) {
             datiAttuali(response);
         })
