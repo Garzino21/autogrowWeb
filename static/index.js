@@ -2,8 +2,6 @@
 //mettere a posto bug del meteo che a volte mette undefined
 //se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
 
-//fare pezzo di logout e gestire tutte le prime chiamate in una unica dal server
-
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
 
@@ -34,7 +32,14 @@ $(document).ready(function () {
     let _tbodyAutomatico = $("#tbodyAutomatico");
     let _chatBtn = $("#chatBtn");
 
-    const ctx = $("#myChart"); 
+    const ctx = $("#myChart");
+    _modalitaIrrigazione.hide();
+    _tabAutomatico.hide();
+
+    if (localStorage.getItem("username") != "davide") {
+        _modalitaIrrigazione.prop("inert", true);
+        _btnStato.prop("inert", true);
+    }
 
     async function provoGPT(domanda, listaMex) {
         console.log(domanda);
@@ -101,6 +106,9 @@ $(document).ready(function () {
             confirmButtonText: "OK",
         });
     });
+    
+
+    
 
     $(document).on('click', "#btnDomanda", function () {
         let domanda = $(".message-input");
@@ -228,18 +236,18 @@ $(document).ready(function () {
         }
     });
 
-    function attivaDisattivaIrrigazione(stato){
-        let rq = inviaRichiesta("POST", "/api/attivaDisattivaIrrigazione",{"stato":stato})
-            rq.then(function (response) {
-                console.log(response)
-            })
-            rq.catch(function (err) {
-                if (err.response.status == 401) {
-                    _lblErrore.show();
-                }
-                else
-                    errore(err);
-            })
+    function attivaDisattivaIrrigazione(stato) {
+        let rq = inviaRichiesta("POST", "/api/attivaDisattivaIrrigazione", { "stato": stato })
+        rq.then(function (response) {
+            console.log(response)
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
     }
 
     //prendo dati vecchi
@@ -511,6 +519,7 @@ $(document).ready(function () {
                     _tabAutomatico.show();
                     _btnStato.hide();
                 }
+                _modalitaIrrigazione.show();
             }
         }
     }
@@ -651,7 +660,7 @@ $(document).ready(function () {
         let precipitazioni = [];
         let nuvole = [];
         let day = [];
-        let neve= [];
+        let neve = [];
 
         for (let i = 0; i < 23; i++) {
             time.push(response.data.hourly.time[i]);

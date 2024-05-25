@@ -11,6 +11,7 @@ import _jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 import OpenAI from "openai";
 import axios from 'axios';
+const _nodemailer = require("nodemailer");
 
 // Lettura delle password e parametri fondamentali
 _dotenv.config({ "path": ".env" });
@@ -140,19 +141,43 @@ app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
         res.send("t");
     else
         res.send("f");
-    // const client = new MongoClient(connectionString);
-    // await client.connect();
-    // let collection = client.db(DBNAME).collection("azioni");
-    // let rq = collection.findOne({ tipo: "irrigazione" })
-    // rq.then(async (risposta) => {
-    //     console.log(risposta);
-    //     if (risposta.acceso == false)
-    //         res.send("spegni");
-    //     else
-    //         res.send("accendi");
-    // });
-    // rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
-    // rq.finally(() => client.close());
+});
+
+
+const auth = { user: process.env.mail, pass: process.env.password };
+const transporter = _nodemailer.createTransport({
+    service: 'gmail',
+    auth: auth
+});
+
+app.post("/api/cambiaPassword", async (req, res, next) => {
+    let username = req["body"].username;
+    let password = req["body"].newPass;
+    password = _bcrypt.hashSync(password, 10);
+    console.log(username, password);
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("utenti");
+    let rq = collection.updateOne({ "mail": username }, { "$set": { "password": password } });
+    rq.then((data) => {
+        let mailOptions = {
+            from: auth.user,
+            to: username,
+            subject: 'Cambio password',
+            text: `La tua password è: ${req["body"].newPass}`
+        };
+
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error);
+            } else {
+                res.send(data);
+            }
+        });
+        //res.send(data);
+    });
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
 });
 
 app.get("/api/inviadati", async (req, res, next) => {

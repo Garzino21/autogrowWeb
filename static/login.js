@@ -92,6 +92,7 @@ $(document).ready(function () {
 				}
 			});
 			request.then((response) => {
+				localStorage.setItem("username", _username.val());
 				window.location.href = "index.html";
 			})
 		}
