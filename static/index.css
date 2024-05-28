@@ -71,6 +71,12 @@ body {
   text-align: center;
   text-indent:inherit;
   padding: 50px;
+  margin-bottom: 2rem;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .textImage {
@@ -556,6 +562,8 @@ nav{
     width: 45%;
     float: left;
     margin-bottom: unset;
+    margin-bottom: 20px;
+    float: unset;
   }
 
   .togliBr{

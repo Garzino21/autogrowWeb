@@ -384,7 +384,7 @@ app.get("/api/meteoSettimana", async (req, res, next) => {
 });
 
 
-function inviaRichiesta(method, url, parameters={}) {
+function inviaRichiesta(method, url, parameters = {}) {
     let config = {
         "baseURL": "",
         "url": url,
@@ -430,6 +430,7 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
     let selezionato = req["body"].selected;
     let posizione = req["body"].posizione;  //posizione dell'elemento selezionato
     console.log("selezzzz" + selezionato);
+    console.log("posizione" + posizione);
     if (selezionato == true) {
         const client = new MongoClient(connectionString);
         await client.connect();
@@ -439,20 +440,38 @@ app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
         rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
         rq.finally(() => client.close());
     }
-
-    const client = new MongoClient(connectionString);
-    await client.connect();
-    let collection = client.db(DBNAME).collection("azioni");
-    let rq = collection.updateOne({ "tipo": "gestioneAutomatico" }, { $set: { [`disponibili.${posizione}.selected`]: selezionato } }); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
-    rq.then((data) => {
-        res.send(data);
-    });
-    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
-    rq.finally(() => client.close());
+    if (posizione == undefined) {
+        const client = new MongoClient(connectionString);
+        await client.connect();
+        let collection = client.db(DBNAME).collection("azioni");
+        let rq = collection.updateOne({ "tipo": "gestioneAutomatico" }, { $set: { "disponibili.$[].selected": selezionato } }); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+        rq.then((data) => {
+            res.send(data);
+        });
+        rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+        rq.finally(() => client.close());
+    }
+    else {
+        const client = new MongoClient(connectionString);
+        await client.connect();
+        let collection = client.db(DBNAME).collection("azioni");
+        let rq = collection.updateOne({ "tipo": "gestioneAutomatico" }, { $set: { [`disponibili.${posizione}.selected`]: selezionato } }); // Filtra l'array disponibili per trovare il secondo elemento non selezionato
+        rq.then((data) => {
+            res.send(data);
+        });
+        rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+        rq.finally(() => client.close());
+    }
 });
 
 app.post("/api/attivaDisattivaIrrigazione", async (req, res, next) => {
     statoIrrigazione = req["body"].stato;
+    res.send("ok");
+
+});
+
+app.get("/api/chiedoStatoIrrigazione", async (req, res, next) => {
+    res.send(statoIrrigazione);
 });
 
 app.post("/api/prendidati", async (req, res, next) => {

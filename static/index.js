@@ -1,6 +1,7 @@
 //gestire il lato dell'irrigazione automatica
-//se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
 //creo modellino
+//fare mediaquery da 740px
+//se passo da AUTOMATICO A MANUALE devo mettere il div _modalitaIrrigazione a inert true
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -31,6 +32,8 @@ $(document).ready(function () {
     let _selectVisualData = $("#selectVisualData");
     let _tbodyAutomatico = $("#tbodyAutomatico");
     let _chatBtn = $("#chatBtn");
+
+    let statoIrrigaziones;
 
     const ctx = $("#myChart");
     _modalitaIrrigazione.hide();
@@ -83,7 +86,7 @@ $(document).ready(function () {
 
     //presa dei dati
     prendiIrrigazioneAutomatica();              //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
+    statoIrrigazione();                         //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     //gestione eventi
     _chatBtn.on("click", function () {
         let html = `  <div class="card">
@@ -106,9 +109,29 @@ $(document).ready(function () {
             confirmButtonText: "OK",
         });
     });
-    
 
-    
+    function statoIrrigazione(){
+        let rq = inviaRichiesta("GET", "/api/chiedoStatoIrrigazione")
+        rq.then(function (response) {
+            console.log(response)
+            statoIrrigaziones = response.data;
+            console.log("stattttt"+statoIrrigaziones);
+            if (statoIrrigaziones == true) {
+                _btnStato.text("SPEGNI").css({ "background-color": "red", "border-color": "red" });
+            }
+            else {
+                _btnStato.text("ACCENDI").css({ "background-color": "green", "border-color": "green" });
+            }
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
+    }
+
 
     $(document).on('click', "#btnDomanda", function () {
         let domanda = $(".message-input");
@@ -194,23 +217,30 @@ $(document).ready(function () {
     });
 
     //modAutomatico e manuale
-    _modalitaIrrigazione.on("click", function () {
+    _modalitaIrrigazione.on("click", async function () {
+       //$(this).addClass("disabled");
         if (_modalitaIrrigazione.text() == "MANUALE") {
             _modalitaIrrigazione.text("Caricamento...");
             if (window.innerWidth < 991) {
                 _modalitaIrrigazione.css({ "margin-bottom": "20px", "float": "unset" })
             }
+
             aggiornoDb("AUTOMATICO");
+            await attivaDisattivaIrrigazione(false);
+            _btnStato.hide();
+            await prendiIrrigazioneAutomatica();            
         }
         else {
             _modalitaIrrigazione.text("Caricamento...");
             aggiornoDb("MANUALE");
-        }
+            $(".button").prop("disabled", true);    
+            await aggiornaAutomatico(false, 0, 0, undefined);
+        }  
     });
 
     //btnStato acceso spento irriga in manuale
     _btnStato.on("click", async function () {
-        if (_btnStato.text() == "ACCENDI") {
+        if ( _btnStato.text() == "ACCENDI") {
             await attivaDisattivaIrrigazione(true);
             _btnStato.text("SPEGNI").css({ "background-color": "red", "border-color": "red" });
             Swal.fire({
@@ -248,6 +278,7 @@ $(document).ready(function () {
             else
                 errore(err);
         })
+        statoIrrigazione();
     }
 
     //prendo dati vecchi
@@ -323,11 +354,13 @@ $(document).ready(function () {
                 if (btn.text() == "ATTIVO") {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
+                    $(".button").prop("disabled", true);
                     aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
                 }
                 else {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
+                    $(".button").prop("disabled", true);
                     aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
@@ -506,7 +539,7 @@ $(document).ready(function () {
                 _modalitaIrrigazione.text(modIrr.toUpperCase());
 
                 if (_modalitaIrrigazione.text() == "MANUALE") {
-                    if (action.acceso == false) {
+                    if (statoIrrigaziones==false) {
                         _btnStato.text("ACCENDI").css({ "background-color": "green", "border-color": "green" }).show();
                     }
                     else {
@@ -905,14 +938,14 @@ $(document).ready(function () {
         let delay
         if (giornoScelto < giornoOggi) {         //il problema penso sia il fatto che se sono a aprile devo prendere il
 
-            giornoScelto= parseInt(giornoScelto,10);
+            giornoScelto = parseInt(giornoScelto, 10);
             delay = num - (giornoOggi - giornoScelto);
             console.log("delay" + delay);
             console.log("giornoScelto" + giornoScelto, "giornoOggi" + giornoOggi);
             oreDiff = (delay * 24) - (delay * 1);
         }
         else {
-            giornoScelto= parseInt(giornoScelto,10);
+            giornoScelto = parseInt(giornoScelto, 10);
             delay = giornoScelto - giornoOggi;
             console.log("delay" + delay);
             console.log("giornoScelto" + giornoScelto, "giornoOggi" + giornoOggi);
@@ -1030,7 +1063,7 @@ $(document).ready(function () {
         mese = mese.split("/");
         mese = mese[1];
         console.log("mese " + mese);
-        
+
         let n
         switch (mese) {
             case "01":
