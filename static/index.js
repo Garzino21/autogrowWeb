@@ -1,6 +1,6 @@
 //gestire il lato dell'irrigazione automatica
-//mettere a posto bug del meteo che a volte mette undefined
 //se ho tempo gestire che se hai accesso da visitatore non puoi fare certe cose
+//creo modellino
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -904,17 +904,20 @@ $(document).ready(function () {
         let oreDiff
         let delay
         if (giornoScelto < giornoOggi) {         //il problema penso sia il fatto che se sono a aprile devo prendere il
+
+            giornoScelto= parseInt(giornoScelto,10);
             delay = num - (giornoOggi - giornoScelto);
+            console.log("delay" + delay);
+            console.log("giornoScelto" + giornoScelto, "giornoOggi" + giornoOggi);
             oreDiff = (delay * 24) - (delay * 1);
         }
         else {
+            giornoScelto= parseInt(giornoScelto,10);
             delay = giornoScelto - giornoOggi;
+            console.log("delay" + delay);
+            console.log("giornoScelto" + giornoScelto, "giornoOggi" + giornoOggi);
             oreDiff = (delay * 24) - (delay * 1);
         }
-        // let a= moment(giornoScelto).format("DD")
-        // let b= moment(giornoOggi).format("DD")
-        // a.diff(b, 'days')
-        // console.log(a.diff(b, 'days'))
 
         console.log(oreDiff);
 
@@ -1027,34 +1030,34 @@ $(document).ready(function () {
         mese = mese.split("/");
         mese = mese[1];
         console.log("mese " + mese);
-
+        
         let n
         switch (mese) {
-            case "1":
+            case "01":
                 n = 31;
                 break;
-            case "2":
+            case "02":
                 n = 28;
                 break;
-            case "3":
+            case "03":
                 n = 31;
                 break;
-            case "4":
+            case "04":
                 n = 30;
                 break;
-            case "5":
+            case "05":
                 n = 31;
                 break;
-            case "6":
+            case "06":
                 n = 30;
                 break;
-            case "7":
+            case "07":
                 n = 31;
                 break;
-            case "8":
+            case "08":
                 n = 31;
                 break;
-            case "9":
+            case "09":
                 n = 30;
                 break;
             case "10":
