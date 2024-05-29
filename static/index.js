@@ -1,7 +1,10 @@
-//gestire il lato dell'irrigazione automatica
+
 //creo modellino
 //fare mediaquery da 740px
-//se passo da AUTOMATICO A MANUALE devo mettere il div _modalitaIrrigazione a inert true
+
+//gestire il lato dell'irrigazione automatica
+//da arduino prendere arrayIstruzioniAutomatica del server
+//irrigazione automatica sulla fine faccio che non ce timer ma soglia minima di hum dove bagna per raggiungere un'altra soglia, al posto del timer metto hum max
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -110,12 +113,12 @@ $(document).ready(function () {
         });
     });
 
-    function statoIrrigazione(){
+    function statoIrrigazione() {
         let rq = inviaRichiesta("GET", "/api/chiedoStatoIrrigazione")
         rq.then(function (response) {
             console.log(response)
             statoIrrigaziones = response.data;
-            console.log("stattttt"+statoIrrigaziones);
+            console.log("stattttt" + statoIrrigaziones);
             if (statoIrrigaziones == true) {
                 _btnStato.text("SPEGNI").css({ "background-color": "red", "border-color": "red" });
             }
@@ -218,29 +221,31 @@ $(document).ready(function () {
 
     //modAutomatico e manuale
     _modalitaIrrigazione.on("click", async function () {
-       //$(this).addClass("disabled");
         if (_modalitaIrrigazione.text() == "MANUALE") {
             _modalitaIrrigazione.text("Caricamento...");
+            $(this).addClass("disabled");
             if (window.innerWidth < 991) {
                 _modalitaIrrigazione.css({ "margin-bottom": "20px", "float": "unset" })
             }
 
-            aggiornoDb("AUTOMATICO");
+            aggiornoDb("AUTOMATICO", $(this));
             await attivaDisattivaIrrigazione(false);
             _btnStato.hide();
-            await prendiIrrigazioneAutomatica();            
+            await prendiIrrigazioneAutomatica();
         }
         else {
             _modalitaIrrigazione.text("Caricamento...");
-            aggiornoDb("MANUALE");
-            $(".button").prop("disabled", true);    
+            $(this).addClass("disabled");
+            aggiornoDb("MANUALE",$(this));
+            $(".button").prop("disabled", true);
             await aggiornaAutomatico(false, 0, 0, undefined);
-        }  
+            inizializzaIrrigazioneAutomatica(false, "0");
+        }
     });
 
     //btnStato acceso spento irriga in manuale
     _btnStato.on("click", async function () {
-        if ( _btnStato.text() == "ACCENDI") {
+        if (_btnStato.text() == "ACCENDI") {
             await attivaDisattivaIrrigazione(true);
             _btnStato.text("SPEGNI").css({ "background-color": "red", "border-color": "red" });
             Swal.fire({
@@ -356,25 +361,41 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
+                    inizializzaIrrigazioneAutomatica(false, item.hum);
                 }
                 else {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
+                    inizializzaIrrigazioneAutomatica(true, item.hum);
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
             if (item.selected == false) {
                 btn.prop("disabled", false);
-                btn.text("DISATTIVO");
+                btn.text("DISATTIVO");  
             }
-            else {
+            else if(item.selected == true) {
                 btn.prop("disabled", false);
                 btn.text("ATTIVO");
             }
             i++;
         }
+    }
+
+    async function  inizializzaIrrigazioneAutomatica(selected,hum){//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "hum": hum})
+        rq.then(async function (response) {
+            console.log(response.data);
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
     }
 
     async function aggiornaAutomatico(selected, hum, timer, posizione) {
@@ -539,7 +560,7 @@ $(document).ready(function () {
                 _modalitaIrrigazione.text(modIrr.toUpperCase());
 
                 if (_modalitaIrrigazione.text() == "MANUALE") {
-                    if (statoIrrigaziones==false) {
+                    if (statoIrrigaziones == false) {
                         _btnStato.text("ACCENDI").css({ "background-color": "green", "border-color": "green" }).show();
                     }
                     else {
@@ -558,7 +579,7 @@ $(document).ready(function () {
     }
 
     //aggiorno db da manuale a automatico e viceversa
-    function aggiornoDb(modalita) {
+    function aggiornoDb(modalita, btn = null) {
         let rq = inviaRichiesta("POST", "/api/aggiornamodalita", { "modalita": modalita });
         rq.then(function (response) {
             console.log(response);
@@ -572,6 +593,12 @@ $(document).ready(function () {
                 _tabAutomatico.show();
                 _btnStato.hide();
             }
+
+            if (btn != null) {
+                btn.removeClass("disabled");
+            }
+
+
         })
         rq.catch(function (err) {
             if (err.response.status == 401) {

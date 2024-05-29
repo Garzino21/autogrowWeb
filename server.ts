@@ -21,6 +21,7 @@ const OPENAI_API_KEY = process.env.api_key_chatgpt;
 
 //irrigazione
 let statoIrrigazione = false;
+let arrayIstruzioniAutomatica = [];
 
 // Variabili relative a MongoDB ed Express
 import { MongoClient, ObjectId } from "mongodb";
@@ -141,6 +142,8 @@ app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
         res.send("t");
     else
         res.send("f");
+
+    //devo inviare anche l'arrayIstruzioniAutomatica
 });
 
 
@@ -357,6 +360,18 @@ app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
     rq.finally(() => client.close());
+});
+
+
+app.post("/api/impostaArrayIstruzioniAutomatica", async (req, res, next) => {
+    let selected= req["body"].selected;
+    let hum=req["body"].hum;
+
+    arrayIstruzioniAutomatica=[];
+    arrayIstruzioniAutomatica.push(selected);
+    arrayIstruzioniAutomatica.push(hum);
+    console.log(arrayIstruzioniAutomatica);
+    res.send("ok");
 });
 
 app.get("/api/meteoOggi", async (req, res, next) => {
