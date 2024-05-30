@@ -929,8 +929,9 @@ $(document).ready(function () {
 
     // invio richiesta meteo giorno scelto
     function richiestaDatigiorno(giorno) {
-        let rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&hourly=cloud_cover&hourly=precipitation&hourly=temperature&hourly=snowfall&timezone=Europe%2FBerlin")
+        let rq = inviaRichiesta("GET", "/api/meteoOggi")
         rq.then(function (response) {
+            console.log(response);  
             RiempioSwal(response, giorno);
         })
         rq.catch(function (err) {
