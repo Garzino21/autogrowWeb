@@ -6,6 +6,9 @@
 //da arduino devo far si che se server si disconnette spenga irrigazione dal manuale
 //da arduino l'automatico lo implemento nell'arduino cosi se si stacca dal server funziona lo stesso
 
+
+//FACOLTATIVO FAR STAMPARE DEGLI ADESIVI DA ATTACCARE SUL MODELLINO
+
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
 
