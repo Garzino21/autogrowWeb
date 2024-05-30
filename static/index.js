@@ -2,9 +2,9 @@
 //creo modellino
 //fare mediaquery da 740px
 
-//gestire il lato dell'irrigazione automatica
 //da arduino prendere arrayIstruzioniAutomatica del server
-//irrigazione automatica sulla fine faccio che non ce timer ma soglia minima di hum dove bagna per raggiungere un'altra soglia, al posto del timer metto hum max
+//da arduino devo far si che se server si disconnette spenga irrigazione dal manuale
+//da arduino l'automatico lo implemento nell'arduino cosi se si stacca dal server funziona lo stesso
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -239,7 +239,7 @@ $(document).ready(function () {
             aggiornoDb("MANUALE",$(this));
             $(".button").prop("disabled", true);
             await aggiornaAutomatico(false, 0, 0, undefined);
-            inizializzaIrrigazioneAutomatica(false, "0");
+            inizializzaIrrigazioneAutomatica(false, 0, 0);
         }
     });
 
@@ -351,8 +351,8 @@ $(document).ready(function () {
         _tbodyAutomatico.empty();
         for (let item of response.disponibili) {
             let tr = $("<tr>").appendTo(_tbodyAutomatico);
-            $("<td>").text(item.hum).appendTo(tr);
-            $("<td>").text(item.timer).appendTo(tr);
+            $("<td>").text(item.humMin).appendTo(tr);
+            $("<td>").text(item.humMax).appendTo(tr);
 
             let td = $("<td>").appendTo(tr);
             let btn = $("<button>").appendTo(td).prop("value", i).on("click", function () {
@@ -360,15 +360,15 @@ $(document).ready(function () {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
-                    aggiornaAutomatico(false, item.hum, item.timer, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(false, item.hum);
+                    aggiornaAutomatico(false, item.humMin, item.humMax, $(this).prop("value"));
+                    inizializzaIrrigazioneAutomatica(false, item.humMin, item.humMax);
                 }
                 else {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
-                    aggiornaAutomatico(true, item.hum, item.timer, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(true, item.hum);
+                    aggiornaAutomatico(true, item.humMin, item.humMax, $(this).prop("value"));
+                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax);
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
@@ -384,8 +384,8 @@ $(document).ready(function () {
         }
     }
 
-    async function  inizializzaIrrigazioneAutomatica(selected,hum){//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "hum": hum})
+    async function  inizializzaIrrigazioneAutomatica(selected,humMin,humMax){//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax})
         rq.then(async function (response) {
             console.log(response.data);
         })
@@ -398,8 +398,8 @@ $(document).ready(function () {
         })
     }
 
-    async function aggiornaAutomatico(selected, hum, timer, posizione) {
-        let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", { "hum": hum, "timer": timer, "selected": selected, "posizione": posizione })
+    async function aggiornaAutomatico(selected, humMin, humMax, posizione) {
+        let rq = inviaRichiesta("POST", "/api/aggiornaIrrigazioneAutomatica", { "humMin": humMin, "humMax": humMax, "selected": selected, "posizione": posizione })
         rq.then(async function (response) {
             console.log(response.data);
             await prendiIrrigazioneAutomatica();

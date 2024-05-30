@@ -365,11 +365,13 @@ app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
 
 app.post("/api/impostaArrayIstruzioniAutomatica", async (req, res, next) => {
     let selected= req["body"].selected;
-    let hum=req["body"].hum;
+    let humMin=req["body"].humMin;
+    let humMax=req["body"].humMax;  
 
     arrayIstruzioniAutomatica=[];
     arrayIstruzioniAutomatica.push(selected);
-    arrayIstruzioniAutomatica.push(hum);
+    arrayIstruzioniAutomatica.push(humMin);
+    arrayIstruzioniAutomatica.push(humMax);
     console.log(arrayIstruzioniAutomatica);
     res.send("ok");
 });
@@ -441,7 +443,8 @@ async function prendiIrrigazioneAutomatica(res: any, risposta: any) {
 }
 
 app.post("/api/aggiornaIrrigazioneAutomatica", async (req, res, next) => {
-    let timer = req["body"].timer;
+    let humMax = req["body"].humMax;
+    let humMin = req["body"].humMin;
     let selezionato = req["body"].selected;
     let posizione = req["body"].posizione;  //posizione dell'elemento selezionato
     console.log("selezzzz" + selezionato);
