@@ -11,6 +11,7 @@
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
+//https://newsapi.org/
 
 $(document).ready(function () {
     let stile = { "font-size": "15pt", "color": "black", "font-weight": "bold", "width": "100%" }
@@ -38,6 +39,8 @@ $(document).ready(function () {
     let _selectVisualData = $("#selectVisualData");
     let _tbodyAutomatico = $("#tbodyAutomatico");
     let _chatBtn = $("#chatBtn");
+    let _divNews = $("#divNews");
+    let arrayNews = [];
 
     let statoIrrigaziones;
 
@@ -92,7 +95,9 @@ $(document).ready(function () {
 
     //presa dei dati
     prendiIrrigazioneAutomatica();              //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    statoIrrigazione();                         //richiestaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    statoIrrigazione();
+    getNews();
+
     //gestione eventi
     _chatBtn.on("click", function () {
         let html = `  <div class="card">
@@ -115,6 +120,25 @@ $(document).ready(function () {
             confirmButtonText: "OK",
         });
     });
+
+    async function getNews() {
+        let aus="";
+        let rq = inviaRichiesta("GET", "/api/getNews")
+        rq.then(function (response) {
+            console.log(response)
+            for (let news of response.data.articles) {
+                aus +="<a href='"+news.url+"'Target='_blank'><label><label class='blinker' style='display:inline'></label>"+ news.title+"</label></a> &nbsp;&nbsp;&nbsp;";
+            }
+            _divNews.html(aus);
+        })
+        rq.catch(function (err) {
+            if (err.response.status == 401) {
+                _lblErrore.show();
+            }
+            else
+                errore(err);
+        })
+    }
 
     function statoIrrigazione() {
         let rq = inviaRichiesta("GET", "/api/chiedoStatoIrrigazione")
@@ -239,7 +263,7 @@ $(document).ready(function () {
         else {
             _modalitaIrrigazione.text("Caricamento...");
             $(this).addClass("disabled");
-            aggiornoDb("MANUALE",$(this));
+            aggiornoDb("MANUALE", $(this));
             $(".button").prop("disabled", true);
             await aggiornaAutomatico(false, 0, 0, undefined);
             inizializzaIrrigazioneAutomatica(false, 0, 0);
@@ -377,9 +401,9 @@ $(document).ready(function () {
 
             if (item.selected == false) {
                 btn.prop("disabled", false);
-                btn.text("DISATTIVO");  
+                btn.text("DISATTIVO");
             }
-            else if(item.selected == true) {
+            else if (item.selected == true) {
                 btn.prop("disabled", false);
                 btn.text("ATTIVO");
             }
@@ -387,8 +411,8 @@ $(document).ready(function () {
         }
     }
 
-    async function  inizializzaIrrigazioneAutomatica(selected,humMin,humMax){//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax})
+    async function inizializzaIrrigazioneAutomatica(selected, humMin, humMax) {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax })
         rq.then(async function (response) {
             console.log(response.data);
         })
@@ -934,7 +958,7 @@ $(document).ready(function () {
     function richiestaDatigiorno(giorno) {
         let rq = inviaRichiesta("GET", "/api/meteoOggi")
         rq.then(function (response) {
-            console.log(response);  
+            console.log(response);
             RiempioSwal(response, giorno);
         })
         rq.catch(function (err) {

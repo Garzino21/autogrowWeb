@@ -388,6 +388,18 @@ app.get("/api/meteoOggi", async (req, res, next) => {
     });
 });
 
+app.get("/api/getNews", async (req, res, next) => {
+    let rq = inviaRichiesta("GET", "https://newsapi.org/v2/everything?q=agricoltura&from=2024-05-01&language=it&sortBy=publishedAt&apiKey=636044f481dc4ce69645e7fe3020799c")
+    rq.then(function (response) {
+        console.log(response.data); // Mostra i dati della risposta
+        res.send(JSON.stringify(response.data));
+    })
+    rq.catch(function (err) {
+        console.error(`Errore durante la richiesta GET:`);
+        res.status(500).send(`Errore durante la richiesta GET:`);
+    });
+});
+
 app.get("/api/meteoSettimana", async (req, res, next) => {
     let rq = inviaRichiesta("GET", "https://api.open-meteo.com/v1/forecast?latitude=44.6833200&longitude=7.2757100&daily=temperature_2m_max&daily=temperature_2m_min&daily=precipitation_sum&daily=snowfall_sum&timezone=Europe%2FBerlin")
     rq.then(function (response) {
