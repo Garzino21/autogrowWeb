@@ -22,6 +22,7 @@ const OPENAI_API_KEY = process.env.api_key_chatgpt;
 //irrigazione
 let statoIrrigazione = false;
 let arrayIstruzioniAutomatica = [];
+let mod = -1; // setto a -1 per far capire che lho gia preso 0 quando spengo l'automatico
 
 // Variabili relative a MongoDB ed Express
 import { MongoClient, ObjectId } from "mongodb";
@@ -139,12 +140,20 @@ app.post("/api/login", async (req, res, next) => {
 });
 app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
     if (statoIrrigazione == true) {
-        res.send("t");
+        if (mod == -1)
+            res.send("t-1");
+        else
+            res.send("t" + mod);
     }
     else {
-        res.send("f");
+        if (mod == -1)
+            res.send("f-1");
+        else
+            res.send("f" + mod);
     }
-    //devo inviare anche l'arrayIstruzioniAutomatica
+
+    //alla fine devo poi settare la mod a -1 cosi arduino tiene la modalità passatagli se gli passo la 0 allora lui disattiva
+    //devo inviare anche l'arrayIstruzioniAutomatica gli passo semplicemente modalità 1,2,3 e umidità minima e massima se ce lo 0 modalita automatico disattivo
 });
 
 
@@ -365,15 +374,16 @@ app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
 
 
 app.post("/api/impostaArrayIstruzioniAutomatica", async (req, res, next) => {
-    let selected = req["body"].selected;
-    let humMin = req["body"].humMin;
-    let humMax = req["body"].humMax;
-
-    arrayIstruzioniAutomatica = [];
-    arrayIstruzioniAutomatica.push(selected);
-    arrayIstruzioniAutomatica.push(humMin);
-    arrayIstruzioniAutomatica.push(humMax);
-    console.log(arrayIstruzioniAutomatica);
+    // let selected = req["body"].selected;
+    // let humMin = req["body"].humMin;
+    // let humMax = req["body"].humMax;
+    mod = req["body"].mod;
+    console.log("mod " + mod);
+    // arrayIstruzioniAutomatica = [];
+    // arrayIstruzioniAutomatica.push(selected);
+    // arrayIstruzioniAutomatica.push(humMin);
+    // arrayIstruzioniAutomatica.push(humMax);
+    // console.log(arrayIstruzioniAutomatica);
     res.send("ok");
 });
 
@@ -391,7 +401,7 @@ app.get("/api/meteoOggi", async (req, res, next) => {
 
 app.get("/api/getNews", async (req, res, next) => {
     let dataNews = req["query"].data;
-    let rq = inviaRichiesta("GET", "https://newsapi.org/v2/everything?q=agricoltura&from="+dataNews+"&language=it&sortBy=publishedAt&apiKey=636044f481dc4ce69645e7fe3020799c")
+    let rq = inviaRichiesta("GET", "https://newsapi.org/v2/everything?q=agricoltura&from=" + dataNews + "&language=it&sortBy=publishedAt&apiKey=636044f481dc4ce69645e7fe3020799c")
     rq.then(function (response) {
         console.log(response.data); // Mostra i dati della risposta
         res.send(JSON.stringify(response.data));

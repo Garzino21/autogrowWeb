@@ -279,7 +279,7 @@ $(document).ready(function () {
             aggiornoDb("MANUALE", $(this));
             $(".button").prop("disabled", true);
             await aggiornaAutomatico(false, 0, 0, undefined);
-            inizializzaIrrigazioneAutomatica(false, 0, 0);
+            inizializzaIrrigazioneAutomatica(false, 0, 0,0);
         }
     });
 
@@ -401,14 +401,14 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(false, item.humMin, item.humMax, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(false, item.humMin, item.humMax);
+                    inizializzaIrrigazioneAutomatica(false, item.humMin, item.humMax,0);
                 }
                 else {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(true, item.humMin, item.humMax, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax);
+                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax,$(this).prop("value"));
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
@@ -424,8 +424,9 @@ $(document).ready(function () {
         }
     }
 
-    async function inizializzaIrrigazioneAutomatica(selected, humMin, humMax) {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax })
+    async function inizializzaIrrigazioneAutomatica(selected, humMin, humMax, mod) {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        mod=parseInt(mod)+1;
+        let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax, "mod": mod })
         rq.then(async function (response) {
             console.log(response.data);
         })
