@@ -138,11 +138,12 @@ app.post("/api/login", async (req, res, next) => {
     rq.finally(() => client.close());
 });
 app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
-    if (statoIrrigazione == true)
+    if (statoIrrigazione == true) {
         res.send("t");
-    else
+    }
+    else {
         res.send("f");
-
+    }
     //devo inviare anche l'arrayIstruzioniAutomatica
 });
 
@@ -364,11 +365,11 @@ app.post("/api/prendiIrrigazioneAutomatica", async (req, res, next) => {
 
 
 app.post("/api/impostaArrayIstruzioniAutomatica", async (req, res, next) => {
-    let selected= req["body"].selected;
-    let humMin=req["body"].humMin;
-    let humMax=req["body"].humMax;  
+    let selected = req["body"].selected;
+    let humMin = req["body"].humMin;
+    let humMax = req["body"].humMax;
 
-    arrayIstruzioniAutomatica=[];
+    arrayIstruzioniAutomatica = [];
     arrayIstruzioniAutomatica.push(selected);
     arrayIstruzioniAutomatica.push(humMin);
     arrayIstruzioniAutomatica.push(humMax);
@@ -389,7 +390,8 @@ app.get("/api/meteoOggi", async (req, res, next) => {
 });
 
 app.get("/api/getNews", async (req, res, next) => {
-    let rq = inviaRichiesta("GET", "https://newsapi.org/v2/everything?q=agricoltura&from=2024-05-01&language=it&sortBy=publishedAt&apiKey=636044f481dc4ce69645e7fe3020799c")
+    let dataNews = req["query"].data;
+    let rq = inviaRichiesta("GET", "https://newsapi.org/v2/everything?q=agricoltura&from="+dataNews+"&language=it&sortBy=publishedAt&apiKey=636044f481dc4ce69645e7fe3020799c")
     rq.then(function (response) {
         console.log(response.data); // Mostra i dati della risposta
         res.send(JSON.stringify(response.data));

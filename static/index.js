@@ -1,6 +1,7 @@
 
 //creo modellino
 //fare mediaquery da 740px
+//bun --watch server.ts
 
 //da arduino prendere arrayIstruzioniAutomatica del server
 //da arduino devo far si che se server si disconnette spenga irrigazione dal manuale
@@ -123,11 +124,23 @@ $(document).ready(function () {
 
     async function getNews() {
         let aus="";
-        let rq = inviaRichiesta("GET", "/api/getNews")
+        let dataOggi= new Date().toLocaleDateString();
+        let dataNews = dataOggi.split("/");
+        dataNews[1] = parseInt(dataNews[1]) - 1;
+
+        if (dataNews[1] < 10) {
+            dataNews[1] = "0" + dataNews[1];
+        }
+
+        dataNews = dataNews[2] + "-" + dataNews[1] + "-" + dataNews[0];
+        console.log(dataNews);
+
+        let rq = inviaRichiesta("GET", "/api/getNews", { "data": dataNews })
         rq.then(function (response) {
             console.log(response)
             for (let news of response.data.articles) {
-                aus +="<a href='"+news.url+"'Target='_blank'><label><label class='blinker' style='display:inline'></label>"+ news.title+"</label></a> &nbsp;&nbsp;&nbsp;";
+                if(news.title!=null)
+                    aus +="<a href='"+news.url+"'Target='_blank'><label><label class='blinker' style='display:inline'></label>"+ news.title+"</label></a> &nbsp;&nbsp;&nbsp;";
             }
             _divNews.html(aus);
         })
