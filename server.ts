@@ -151,6 +151,7 @@ app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
         else
             res.send("f" + mod);
     }
+    mod = -1;
 
     //alla fine devo poi settare la mod a -1 cosi arduino tiene la modalità passatagli se gli passo la 0 allora lui disattiva
     //devo inviare anche l'arrayIstruzioniAutomatica gli passo semplicemente modalità 1,2,3 e umidità minima e massima se ce lo 0 modalita automatico disattivo

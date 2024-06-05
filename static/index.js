@@ -3,12 +3,9 @@
 //fare mediaquery da 740px
 //bun --watch server.ts
 
-//da arduino prendere arrayIstruzioniAutomatica del server
+//da arduino fare switch del server 
 //da arduino devo far si che se server si disconnette spenga irrigazione dal manuale
 //da arduino l'automatico lo implemento nell'arduino cosi se si stacca dal server funziona lo stesso
-
-
-//FACOLTATIVO FAR STAMPARE DEGLI ADESIVI DA ATTACCARE SUL MODELLINO
 
 //icone https://icons8.it/icon/set/meteo/fluency
 //https://uiverse.io/
@@ -59,7 +56,7 @@ $(document).ready(function () {
         let rq = inviaRichiesta("POST", "/api/domanda", { "domanda": domanda })
         rq.then(function (response) {
             console.log(response);
-            let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "style-type": "none" });
+            let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "list-style-type": "none" });
             $("<li>").text(response.data.choices[0].message.content).addClass("risposta").css("style-type", "none").appendTo(ul);
         })
         rq.catch(function (err) {
@@ -180,7 +177,7 @@ $(document).ready(function () {
         let domanda = $(".message-input");
         let listaMex = $(".message-list");
         let domandona = domanda.val();
-        let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "style-type": "none" });
+        let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "list-style-type": "none"});
         $("<li>").text(domanda.val()).addClass("user").css("style-type", "none").appendTo(ul);
         domanda.val("");
         provoGPT(domandona, listaMex);
@@ -408,7 +405,7 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(true, item.humMin, item.humMax, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax,$(this).prop("value"));
+                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax,parseInt($(this).prop("value"))+1);
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
@@ -425,7 +422,7 @@ $(document).ready(function () {
     }
 
     async function inizializzaIrrigazioneAutomatica(selected, humMin, humMax, mod) {//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        mod=parseInt(mod)+1;
+        console.log(mod)
         let rq = inviaRichiesta("POST", "/api/impostaArrayIstruzioniAutomatica", { "selected": selected, "humMin": humMin, "humMax": humMax, "mod": mod })
         rq.then(async function (response) {
             console.log(response.data);
