@@ -141,15 +141,19 @@ app.post("/api/login", async (req, res, next) => {
 app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
     if (statoIrrigazione == true) {
         if (mod == -1)
-            res.send("t-1");
+            res.send("t");
         else
-            res.send("t" + mod);
+            res.send(mod.toString());
     }
     else {
         if (mod == -1)
-            res.send("f-1");
+            res.send("f");
         else
-            res.send("f" + mod);
+        {
+            mod = mod + 4;
+            res.send(mod.toString());
+        }
+           
     }
     mod = -1;
 
