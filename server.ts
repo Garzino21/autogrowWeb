@@ -92,13 +92,13 @@ app.use("/", (req: any, res: any, next: any) => {
 });
 
 // 6. Controllo degli accessi tramite CORS
-const corsOptions = {
-    origin: function (origin, callback) {
-        return callback(null, true);
-    },
-    credentials: true
-};
-app.use("/", _cors(corsOptions));
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         return callback(null, true);
+//     },
+//     credentials: true
+// };
+// app.use("/", _cors(corsOptions));
 
 app.post("/api/login", async (req, res, next) => {
     let username = req["body"].username;
@@ -280,31 +280,31 @@ app.get("/api/inviadati", async (req, res, next) => {
 });
 
 // 11. Controllo del token
-app.use("/api/", (req: any, res: any, next: any) => {
-    console.log("Controllo tokenccccccccccc");
-    console.log(req.headers["authorization"]);
-    if (!req.headers["authorization"]) {
-        console.log("Token mancante");
-        res.status(403).send("Token mancante");
-    }
-    else {
-        let token = req.headers["authorization"];
-        _jwt.verify(token, ENCRYPTION_KEY, (err, payload) => {
-            if (err) {
-                res.status(403).send(`Token non valido: ${err}`);
-            }
-            else {
-                let newToken = createToken(payload);
-                console.log(newToken);
-                res.setHeader("authorization", newToken);
-                // Fa si che la header authorization venga restituita al client
-                res.setHeader("access-control-expose-headers", "authorization");
-                req["payload"] = payload;
-                next();
-            }
-        });
-    }
-});
+// app.use("/api/", (req: any, res: any, next: any) => {
+//     console.log("Controllo tokenccccccccccc");
+//     console.log(req.headers["authorization"]);
+//     if (!req.headers["authorization"]) {
+//         console.log("Token mancante");
+//         res.status(403).send("Token mancante");
+//     }
+//     else {
+//         let token = req.headers["authorization"];
+//         _jwt.verify(token, ENCRYPTION_KEY, (err, payload) => {
+//             if (err) {
+//                 res.status(403).send(`Token non valido: ${err}`);
+//             }
+//             else {
+//                 let newToken = createToken(payload);
+//                 console.log(newToken);
+//                 res.setHeader("authorization", newToken);
+//                 // Fa si che la header authorization venga restituita al client
+//                 res.setHeader("access-control-expose-headers", "authorization");
+//                 req["payload"] = payload;
+//                 next();
+//             }
+//         });
+//     }
+// });
 
 function createToken(data) {
     let currentTimeSeconds = Math.floor(new Date().getTime() / 1000);
