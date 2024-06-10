@@ -665,12 +665,12 @@ $(document).ready(function () {
                     _rilevamenti.children().eq(1).text(umiditaAria + "%");
                     $("<span>").text("HUM ARIA").appendTo(_rilevamenti.children().eq(1)).css(stile)
                 }
-                /*else if (item.tipo == "umiditaTerra") {
+                else if (item.tipo == "umiditaTerra") {
                     let umiditaTerra = item.valori[item.valori.length - 1].dato;
                     console.log(umiditaTerra);
                     _rilevamenti.children().eq(2).text(umiditaTerra + "%");
                     $("<span>").text("HUM TERRA").appendTo(_rilevamenti.children().eq(2)).css(stile)
-                }*/
+                }
             }
             else {
                 for (let i = 0; i < 3; i++) {

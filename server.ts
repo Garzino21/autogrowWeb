@@ -215,8 +215,10 @@ app.get("/api/inviadati", async (req, res, next) => {
     //prendo il dato e il tipo
     let temp = req["query"].temp;
     let hum = req["query"].hum;
+    let humT = req["query"].humT;
     console.log(temp);
     console.log(hum);
+    console.log(humT);
 
     const client = new MongoClient(connectionString);
     await client.connect();
@@ -236,6 +238,7 @@ app.get("/api/inviadati", async (req, res, next) => {
 
             await aggiungoTemperatura(temp, ora, res, date);
             await aggiungoUmidita(hum, ora, res, date);
+            await aggiungoUmiditaTerra(humT, ora, res, date);
             res.send("aggiunto");
 
             //#region Codice controllo se i dati sono uguali
@@ -271,6 +274,7 @@ app.get("/api/inviadati", async (req, res, next) => {
         else {
             await aggiungoTemperatura(temp, ora, res, date);
             await aggiungoUmidita(hum, ora, res, date);
+            await aggiungoUmiditaTerra(humT, ora, res, date);
             res.send("aggiunto");
         }
     });
@@ -595,6 +599,21 @@ async function aggiungoUmidita(hum: any, ora: any, res: any, date: any) {
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
 }
 
+
+async function aggiungoUmiditaTerra(hum: any, ora: any, res: any, date: any) {
+    //mi collego al db
+    const client = new MongoClient(connectionString);
+    await client.connect();
+    let collection = client.db(DBNAME).collection("dati");
+
+    //aggiungo il dato
+    let rq = collection.updateOne({ tipo: 'umiditaTerra' }, { $push: { 'valori': { "dato": hum, "ora": ora, "data": date } } });
+    rq.then((data) => {
+        console.log("aggiunta umidita");
+    }
+    );
+    rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+}
 
 async function aggiungoTemperatura(temp: any, ora: any, res: any, date: any) {
     //mi collego al db
