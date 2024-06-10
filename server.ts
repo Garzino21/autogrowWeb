@@ -152,8 +152,7 @@ app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
         {
             mod = mod + 4;
             res.send(mod.toString());
-        }
-           
+        } 
     }
     mod = -1;
 
