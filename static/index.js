@@ -667,6 +667,8 @@ $(document).ready(function () {
                 }
                 else if (item.tipo == "umiditaTerra") {
                     let umiditaTerra = item.valori[item.valori.length - 1].dato;
+                    umiditaTerra= convertToPercentage(umiditaTerra);
+                    umiditaTerra = umiditaTerra.toFixed(0);
                     console.log(umiditaTerra);
                     _rilevamenti.children().eq(2).text(umiditaTerra + "%");
                     $("<span>").text("HUM TERRA").appendTo(_rilevamenti.children().eq(2)).css(stile)
@@ -679,6 +681,10 @@ $(document).ready(function () {
             }
 
         }
+    }
+
+    function convertToPercentage(sensorValue) {
+        return (1 - (sensorValue / 1023)) * 100;
     }
 
     //creo il chart data la response
