@@ -225,9 +225,7 @@ app.get("/api/inviadati", async (req, res, next) => {
     let rq = collection.find({}).toArray();
     rq.then(async (risposta) => {
         //let aggiungiT: boolean = false;
-        //let aggiungiH: boolean = false;
-        console.log(risposta[2].valori[0].data);  
-        console.log(date);  
+        //let aggiungiH: boolean = false; 
         if (risposta[1].valori != "") {
             console.log("-------------------------------------------------------------------------------------");
             if (risposta[2].valori[0].data != date) {    //date data di oggi
