@@ -537,6 +537,7 @@ $(document).ready(function () {
             _selectStorico.hide();
         }
         else {
+            console.log(dateStorico);   
             $("<option>").text("---Dati di oggi---").val(new Date().toLocaleDateString()).appendTo(_selectStorico);
             for (let item of dateStorico) {
                 if (item == new Date().toLocaleDateString() - 1) {

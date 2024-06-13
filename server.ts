@@ -671,7 +671,7 @@ async function aggiornaStorico(data: import("mongodb").WithId<import("bson").Doc
             let contatore = 0;
             for (let valore of dato.valori) {
 
-                aggiungi = { "ora": valore.ora, "valore": valore.dato };
+                aggiungi = { "ora": valore.ora, "dato": valore.dato };
                 valoriVecchi.push(aggiungi);
                 campo = { "tipo": dato.tipo, "data": valore.data, "valori": valoriVecchi };
                 contatore++;
