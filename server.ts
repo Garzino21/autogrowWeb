@@ -231,8 +231,8 @@ app.get("/api/inviadati", async (req, res, next) => {
             console.log("-------------------------------------------------------------------------------------");
             if (risposta[1].valori[(risposta[1].valori.length) - 1].data != date) {    //date data di oggi
                 console.log("aggiorno storico");
-                //await aggiornaStorico(risposta, date, res, req); 
-                //await eliminareDatiVecchi(risposta, date, res, req);
+                await aggiornaStorico(risposta, date, res, req); 
+                await eliminareDatiVecchi(risposta, date, res, req);
             }
 
             await aggiungoTemperatura(temp, ora, res, date);
@@ -683,35 +683,6 @@ async function aggiungoDatiStorico(campo: any, res: any, req: any, tipo: any) {
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
 }
-
-//********************************************************************************************//
-// Gestione dei Web Socket
-//********************************************************************************************//
-
-// const io = new Server(server);
-// let users = [];
-// io.on('connection', function (clientSocket) {
-//     let user;
-//     clientSocket.on("JOIN-ROOM", function (data) {
-//         user = JSON.parse(data);
-//         console.log(`User ${user.username} isConnected! CLIENT SOCKET ID: ${clientSocket.id}`);
-//         users.push(user);
-//         // Inserisce il clientSocket nella room scelta dall'utente
-//         clientSocket.join(user.room);
-//         console.log(`${user.username} inserito correttamente nella stanza ${user.room}`);
-//         clientSocket.emit("JOIN-RESULT", "OK");
-//         clientSocket.emit("NEW-CLIENT-CONNECTED", `${user.username}`);
-//     });
-//     clientSocket.on("NEW-MESSAGE", (data) => {
-//         let message = { "from": user.username, "message": data, "date": new Date() }
-//         io.to(user.room).emit("MESSAGE-NOTIFY", JSON.stringify(message));
-//     });
-//     clientSocket.on("disconnect", () => {
-//         clientSocket.leave(user.room);
-//         users.splice(users.indexOf(user), 1);
-//     });
-// });
-
 //********************************************************************************************//
 // Default route e gestione degli errori
 //********************************************************************************************//
