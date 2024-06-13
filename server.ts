@@ -597,6 +597,7 @@ async function aggiungoUmidita(hum: any, ora: any, res: any, date: any) {
     }
     );
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
 }
 
 
@@ -613,6 +614,7 @@ async function aggiungoUmiditaTerra(hum: any, ora: any, res: any, date: any) {
     }
     );
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
 }
 
 async function aggiungoTemperatura(temp: any, ora: any, res: any, date: any) {
@@ -628,6 +630,7 @@ async function aggiungoTemperatura(temp: any, ora: any, res: any, date: any) {
     }
     );
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
 }
 
 async function eliminareDatiVecchi(data: import("mongodb").WithId<import("bson").Document>[], date: string, res: any, req: any) {
@@ -642,6 +645,7 @@ async function eliminareDatiVecchi(data: import("mongodb").WithId<import("bson")
             console.log("cancellato");
         });
         rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+        rq.finally(() => client.close());
     }
 }
 
@@ -683,6 +687,7 @@ async function aggiungoDatiStorico(campo: any, res: any, req: any, tipo: any) {
         console.log("aggiunta: " + tipo);
     });
     rq.catch((err) => res.status(500).send(`Errore esecuzione query: ${err}`));
+    rq.finally(() => client.close());
 }
 //********************************************************************************************//
 // Default route e gestione degli errori
