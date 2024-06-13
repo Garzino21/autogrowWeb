@@ -226,10 +226,11 @@ app.get("/api/inviadati", async (req, res, next) => {
     rq.then(async (risposta) => {
         //let aggiungiT: boolean = false;
         //let aggiungiH: boolean = false;
-
+        console.log(risposta[2].valori[0].data);  
+        console.log(date);  
         if (risposta[1].valori != "") {
             console.log("-------------------------------------------------------------------------------------");
-            if (risposta[1].valori[(risposta[1].valori.length) - 1].data != date) {    //date data di oggi
+            if (risposta[2].valori[0].data != date) {    //date data di oggi
                 console.log("aggiorno storico");
                 await aggiornaStorico(risposta, date, res, req); 
                 await eliminareDatiVecchi(risposta, date, res, req);
