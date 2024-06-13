@@ -148,11 +148,10 @@ app.get("/api/irrigazioneRichiesta", async (req, res, next) => {
     else {
         if (mod == -1)
             res.send("f");
-        else
-        {
+        else {
             mod = mod + 4;
             res.send(mod.toString());
-        } 
+        }
     }
     mod = -1;
 
@@ -201,15 +200,30 @@ app.get("/api/inviadati", async (req, res, next) => {
     //prendo data e ora all'invio del dato pk altrimenti dovrei avere un altro modulo su arduino
     let now = new Date();
     let ora;
-    let date = now.toLocaleDateString();
-    console.log(now.toLocaleDateString());
-    if (now.getMinutes() < 10)
-        if (now.getMinutes() == 0)
-            ora = now.getHours() + ":" + now.getMinutes() + "0";
-        else
-            ora = now.getHours() + ":" + "0" + now.getMinutes();
-    else
-        ora = now.getHours() + ":" + now.getMinutes();
+    let date = now.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });  // Specifica il fuso orario
+    console.log(date);
+
+    // Prende l'ora corrente specificando il fuso orario
+    let hours = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Rome' });
+
+    console.log(hours);
+
+    // Formatta l'ora manualmente se necessario
+    let hoursParts = hours.split(':');
+    let hour = parseInt(hoursParts[0]);
+    let minute = parseInt(hoursParts[1]);
+
+    if (minute < 10) {
+        if (minute == 0) {
+            ora = hour + ":00";
+        } else {
+            ora = hour + ":0" + minute;
+        }
+    } else {
+        ora = hour + ":" + minute;
+    }
+
+    console.log(ora);
 
     //prendo il dato e il tipo
     let temp = req["query"].temp;
@@ -230,7 +244,7 @@ app.get("/api/inviadati", async (req, res, next) => {
             console.log("-------------------------------------------------------------------------------------");
             if (risposta[2].valori[0].data != date) {    //date data di oggi
                 console.log("aggiorno storico");
-                await aggiornaStorico(risposta, date, res, req); 
+                await aggiornaStorico(risposta, date, res, req);
                 await eliminareDatiVecchi(risposta, date, res, req);
             }
 
