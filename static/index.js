@@ -213,7 +213,7 @@ $(document).ready(function () {
         console.log($(this).prop("name"));
 
         if ($(this).prop("name") == "grafico") {
-            testo = "il grafico della giornata odierna viene aggiornato ogni 5 minuti, puoi vedere la temperatura e l'umidità dell'aria, per vedere le giornate vecchie seleziona la data dal menù a tendina sottostante, per cambiare la visualizzazione dei dati clicca sull'opzione vusualizzazione dati all'ora";
+            testo = "il grafico della giornata odierna viene aggiornato ogni 10 minuti, puoi vedere la temperatura e l'umidità dell'aria, per vedere le giornate vecchie seleziona la data dal menù a tendina sottostante, per cambiare la visualizzazione dei dati clicca sull'opzione vusualizzazione dati all'ora";
         }
         else if ($(this).prop("name") == "irrigazione") {
             testo = "Clicca su MANUALE per impostare l'irrigazione manuale, clicca su AUTOMATICO per impostare l'irrigazione automatica e inizia a settare i parametri di irrigazione necessari";
