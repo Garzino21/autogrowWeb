@@ -594,6 +594,10 @@ nav{
     width: 90%!important;
     height: 700px!important;
     margin: 0!important;
+    background-color: transparent!important;
+  }
+  .swal2-html-container{
+    overflow: hidden!important;
   }
   .card{
     width: 100%!important;
@@ -629,6 +633,10 @@ nav{
     height: 70px!important;
     font-size: 25pt!important;
   }
+}
+
+.swalGPT{
+  background-color: transparent!important;
 }
 
 
@@ -783,6 +791,7 @@ nav{
 .swal2-html-container{
   display: inline-block;
   margin: 0!important;
+  overflow: hidden;
 }
 
 .swal2-actions{

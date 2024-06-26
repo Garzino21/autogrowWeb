@@ -120,8 +120,8 @@ $(document).ready(function () {
     });
 
     async function getNews() {
-        let aus="";
-        let dataOggi= new Date().toLocaleDateString();
+        let aus = "";
+        let dataOggi = new Date().toLocaleDateString();
         let dataNews = dataOggi.split("/");
         dataNews[1] = parseInt(dataNews[1]) - 1;
 
@@ -136,8 +136,8 @@ $(document).ready(function () {
         rq.then(function (response) {
             console.log(response)
             for (let news of response.data.articles) {
-                if(news.title!=null)
-                    aus +="<a href='"+news.url+"'Target='_blank'><label><label class='blinker' style='display:inline'></label>"+ news.title+"</label></a> &nbsp;&nbsp;&nbsp;";
+                if (news.title != null)
+                    aus += "<a href='" + news.url + "'Target='_blank'><label><label class='blinker' style='display:inline'></label>" + news.title + "</label></a> &nbsp;&nbsp;&nbsp;";
             }
             _divNews.html(aus);
         })
@@ -177,7 +177,7 @@ $(document).ready(function () {
         let domanda = $(".message-input");
         let listaMex = $(".message-list");
         let domandona = domanda.val();
-        let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "list-style-type": "none"});
+        let ul = $("<ul>").appendTo(listaMex).css({ "overflow": "hidden", "list-style-type": "none" });
         $("<li>").text(domanda.val()).addClass("user").css("style-type", "none").appendTo(ul);
         domanda.val("");
         provoGPT(domandona, listaMex);
@@ -276,7 +276,7 @@ $(document).ready(function () {
             aggiornoDb("MANUALE", $(this));
             $(".button").prop("disabled", true);
             await aggiornaAutomatico(false, 0, 0, undefined);
-            inizializzaIrrigazioneAutomatica(false, 0, 0,0);
+            inizializzaIrrigazioneAutomatica(false, 0, 0, 0);
         }
     });
 
@@ -330,13 +330,11 @@ $(document).ready(function () {
 
     function gestioneSelect() {
         myChartix.destroy();
+        //console.log("dataaaa:"+ _selectStorico.val());
         if (_selectStorico.val() == new Date().toLocaleDateString()) {
             let rq = inviaRichiesta("POST", "/api/prendidati")
             rq.then(function (response) {
-                if (_selectVisualData.val() != 10)
-                    prendiVisualDataOggi(_selectVisualData.val(), response)             //-----------------------------------------------------------------------------------------
-                else
-                    creaChart(response);
+                    prendiVisualDataOggi(_selectVisualData.val(), response)             //-----------------------------------------------------------------------------------------   
             })
             rq.catch(function (err) {
                 if (err.response.status == 401) {
@@ -350,10 +348,7 @@ $(document).ready(function () {
 
             let rq = inviaRichiesta("POST", "/api/prendiStorico")
             rq.then(function (response) {
-                if (_selectVisualData.val() != 10)
                     prendiVisualDataStorico(_selectVisualData.val(), response)
-                else
-                    creaChart(response);
             })
             rq.catch(function (err) {
                 if (err.response.status == 401) {
@@ -398,14 +393,14 @@ $(document).ready(function () {
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(false, item.humMin, item.humMax, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(false, item.humMin, item.humMax,0);
+                    inizializzaIrrigazioneAutomatica(false, item.humMin, item.humMax, 0);
                 }
                 else {
                     btn.text("Caricando...");
                     btn.prop("disabled", true);
                     $(".button").prop("disabled", true);
                     aggiornaAutomatico(true, item.humMin, item.humMax, $(this).prop("value"));
-                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax,parseInt($(this).prop("value"))+1);
+                    inizializzaIrrigazioneAutomatica(true, item.humMin, item.humMax, parseInt($(this).prop("value")) + 1);
                 }
             }).addClass("button tdAuto").css({ "width": "fit-content", "margin": "auto", "height": "fit-content", "font-size": "14pt", "margin-top": "10px", "margin-bottom": "10px" });
 
@@ -489,19 +484,23 @@ $(document).ready(function () {
         let umiditaAria = [];
 
         for (let item of response.data) {
-            if (item.tipo == "temperatura") {
-                //prendo i dati della temperatura e della data che userò anche per la data dell'umidità
-                for (let valore of item.valori) {
-                    valoreTemperatura.push(valore.dato);
-                    data.push(valore.ora);
+            console.log("cacacaca: "+item.data);
+            if (item.data == _selectStorico.val()) {
+                if (item.tipo == "temperatura") {
+                    //prendo i dati della temperatura e della data che userò anche per la data dell'umidità
+                    for (let valore of item.valori) {
+                        valoreTemperatura.push(valore.dato);
+                        data.push(valore.ora);
+                    }
+                }
+                else if (item.tipo == "umiditaAria") {
+                    //prendo i dati dell'umidità senza data tanto è all'incirca uguale alla temperatura
+                    for (let valore of item.valori) {
+                        umiditaAria.push(valore.dato);
+                    }
                 }
             }
-            else if (item.tipo == "umiditaAria") {
-                //prendo i dati dell'umidità senza data tanto è all'incirca uguale alla temperatura
-                for (let valore of item.valori) {
-                    umiditaAria.push(valore.dato);
-                }
-            }
+
         }
 
         let coeffTaglio = visualData / 10;
@@ -537,7 +536,7 @@ $(document).ready(function () {
             _selectStorico.hide();
         }
         else {
-            console.log(dateStorico);   
+            console.log(dateStorico);
             $("<option>").text("---Dati di oggi---").val(new Date().toLocaleDateString()).appendTo(_selectStorico);
             for (let item of dateStorico) {
                 if (item == new Date().toLocaleDateString() - 1) {
@@ -668,7 +667,7 @@ $(document).ready(function () {
                 }
                 else if (item.tipo == "umiditaTerra") {
                     let umiditaTerra = item.valori[item.valori.length - 1].dato;
-                    umiditaTerra= convertToPercentage(umiditaTerra);
+                    umiditaTerra = convertToPercentage(umiditaTerra);
                     umiditaTerra = umiditaTerra.toFixed(0);
                     console.log(umiditaTerra);
                     _rilevamenti.children().eq(2).text(umiditaTerra + "%");
